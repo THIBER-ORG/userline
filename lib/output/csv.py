@@ -1,7 +1,7 @@
 #
 # Author: Chema Garcia (aka sch3m4)
 #         @sch3m4
-#         https://github.com/sch3m4/userline
+#         https://github.com/thiber-org/userline
 #
 
 import csv
