@@ -2,7 +2,7 @@
 #
 # Author: Chema Garcia (aka sch3m4)
 #         @sch3m4
-#         https://github.com/sch3m4/userline
+#         https://github.com/thiber-org/userline
 #
 
 import sys
@@ -32,7 +32,7 @@ def main():
 	print("")
 	print("Author: Chema Garcia (aka sch3m4)")
 	print("        @sch3m4")
-	print("        https://github.com/sch3m4/userline")
+	print("        https://github.com/thiber-org/userline")
 	print("")
                                        
 
