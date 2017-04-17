@@ -2,7 +2,7 @@
 
 This tool automates the process of creating logon relations from MS Windows Security Events by showing a graphical realtion among users domains, source and destination logons as well as session duration.
 
-![](https://raw.githubusercontent.com/sch3m4/userline/master/img/graph.png)
+![](https://raw.githubusercontent.com/thiber-org/userline/master/img/graph.png)
 
 It has three output modes:
   1. Standard output
@@ -20,7 +20,7 @@ It has three output modes:
 	
 	Author: Chema Garcia (aka sch3m4)
 	        @sch3m4
-	        https://github.com/sch3m4/userline
+	        https://github.com/thiber-org/userline
 	
 	usage: userline.py [-h] [-H ESHOSTS] [-S POOL_SIZE] -i INDEX
 	                   (-L | -E | -l | -w DATE) [-c PATH] [-n BOLT] [-f] [-s]
@@ -106,7 +106,7 @@ Getting the last shutdown event:
 	
 	Author: Chema Garcia (aka sch3m4)
 	        @sch3m4
-	        https://github.com/sch3m4/userline
+	        https://github.com/thiber-org/userline
 	
 	INFO - Last shutdown:
 	INFO - 	- Datetime: 2016-07-12 18:56:33+00:00
@@ -124,7 +124,7 @@ Getting the last event:
 	
 	Author: Chema Garcia (aka sch3m4)
 	        @sch3m4
-	        https://github.com/sch3m4/userline
+	        https://github.com/thiber-org/userline
 	
 	INFO - Last event:
 	
@@ -157,7 +157,7 @@ Getting logon relations between two dates into a CSV file:
 	
 	Author: Chema Garcia (aka sch3m4)
 	        @sch3m4
-	        https://github.com/sch3m4/userline
+	        https://github.com/thiber-org/userline
 	
 	INFO - Building query
 	INFO - Processing events
@@ -176,7 +176,7 @@ Getting logon relations into Neo4J graph:
 	
 	Author: Chema Garcia (aka sch3m4)
 	        @sch3m4
-	        https://github.com/sch3m4/userline
+	        https://github.com/thiber-org/userline
 	
 	INFO - Building query
 	INFO - Processing events
@@ -184,7 +184,7 @@ Getting logon relations into Neo4J graph:
 	INFO - 44 Logons processed in 0:00:02.051880
 
 Query the results using Neo4J CQL
-![](https://raw.githubusercontent.com/sch3m4/userline/master/img/result.png)
+![](https://raw.githubusercontent.com/thiber-org/userline/master/img/result.png)
 
 
 ## Querying Neo4J data
