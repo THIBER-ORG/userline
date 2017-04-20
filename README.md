@@ -8,6 +8,10 @@ It has three output modes:
   1. Standard output
   2. CSV file
   3. Neo4J graph
+
+## Install dependencies
+
+	sudo pip3 install -U -r requirements.txt
   
 ## Command line
 
