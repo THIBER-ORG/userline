@@ -118,6 +118,7 @@ def build_event_from_source(item):
 
 	# get event id from datasource
 	event['sourceid'] = item.meta['id']
+	event['index'] = item.meta['index']
 	item = item.to_dict()
 
 	# get logon type
@@ -125,7 +126,7 @@ def build_event_from_source(item):
 	try:
 		val = int(aux.group(1))
 	except:
-		val = ''
+		val = 'N/A'
 	event['type'] = val
 
 	try:
@@ -133,7 +134,7 @@ def build_event_from_source(item):
 		if event['type'] in config.LOGON_TYPES.keys():
 			val += " - {}".format(config.LOGON_TYPES[event['type']])
 	except:
-		val = ''
+		val = 'N/A'
 
 	event['description'] = val
 
@@ -146,28 +147,28 @@ def build_event_from_source(item):
 		val = '0'
 	event['datetime'] = str(val)
 
-	# get logonid
+	# get TargetLogonId
 	aux = extract.re_logonid.search(item['xml_string'])
 	try:
 		val = aux.group(1)
 	except:
-		val = ''
+		val = 'N/A'
 	event['logonid'] = val
 
-	# get logonguid
+	# get SubjectLogonId
 	aux = extract.re_logonsrcid.search(item['xml_string'])
 	try:
 		val = aux.group(1)
 	except:
-		val = ''
-	event['logonsrcid'] = val
+		val = 'N/A'
+	event['srcid'] = val
 
 	# get computer
 	aux = extract.re_computer.search(item['xml_string'])
 	try:
 		val = aux.group(1)
 	except:
-		val = ''
+		val = 'N/A'
 	event['computer'] = val
 
 	# get target username
@@ -175,7 +176,7 @@ def build_event_from_source(item):
 	try:
 		val = aux.group(1)
 	except:
-		val = ''
+		val = 'N/A'
 	event['username'] = val
 
 	# get target domain
@@ -183,7 +184,7 @@ def build_event_from_source(item):
 	try:
 		val = aux.group(1)
 	except:
-		val = ''
+		val = 'N/A'
 	event['domain'] = val
 
 	try:
@@ -198,7 +199,7 @@ def build_event_from_source(item):
 				val = ''
 			event['ipaddress'] = val
 	except:
-		event['ipaddress'] = ''
+		event['ipaddress'] = 'N/A'
 
 	event['raw'] = item['xml_string']
 	idval = hashlib.sha256('{}{}'.format(event['timestamp'],event['logonid']).encode('utf8'))
@@ -226,7 +227,7 @@ def build_logon_sequence(duration,login,logout=None):
 			'logon.datetime': login['datetime'], \
 			'logon.timestamp': login['timestamp'], \
 			'logon.id': login['logonid'], \
-			'logon.srcid': login['logonsrcid']
+			'logon.srcid': login['srcid'] \
 		})
 
 	if logout is not None:
@@ -246,13 +247,15 @@ def build_logon_sequence(duration,login,logout=None):
 	ret.update({
 			# metadata
 			'logon.meta.uid': login['id'], \
-			'logon.meta.id': login['sourceid']
+			'logon.meta.id': login['sourceid'], \
+			'logon.meta.index': login['index']
 		})
 
 	if logout is not None:
 		ret.update({ \
 				'logoff.meta.uid': logout['id'], \
-				'logoff.meta.id': logout['sourceid'] \
+				'logoff.meta.id': logout['sourceid'], \
+				'logoff.meta.index': logout['index']
 			})
 
 	return ret

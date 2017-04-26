@@ -142,7 +142,6 @@ Getting the last event:
 	    "id": "cbc2794961fa5ced4366ef52673479faf4df5a53ca66280263526bbe0bee13af",
 	    "ipaddress": "",
 	    "logonid": "",
-	    "logonsrcid": "",
 	    "raw": "<Event xmlns=\"http://schemas.microsoft.com/win/2004/08/events/event\">\n  <System>\n    <Provider Name=\"EventLog\"/>\n    <EventID Qualifiers=\"32768\">6006</EventID>\n    <Level>4</Level>\n    <Task>0</Task>\n    <Keywords>0x0080000000000000</Keywords>\n    <TimeCreated SystemTime=\"2017-02-14T05:44:36.000000000Z\"/>\n    <EventRecordID>784</EventRecordID>\n    <Channel>System</Channel>\n    <Computer>ws01.evil.corp</Computer>\n    <Security/>\n  </System>\n  <EventData>\n    <Binary>0100000000000000</Binary>\n  </EventData>\n</Event>\n",
 	    "sourceid": "AOsBX5IrkRtSdYVCbxr4",
 	    "srcid": "",

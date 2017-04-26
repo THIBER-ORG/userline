@@ -74,20 +74,21 @@ EVENT_ACTION = { \
 
 # Event skel (logon/logoff)
 EVENT_SKEL = { \
-		'type': '', \
-		'eventid': '', \
-		'description': '', \
-		'username': '', \
-		'domain': '', \
-		'ipaddress': '', \
-		'computer': '', \
-		'datetime': '', \
+		'index': 'N/A', \
+		'type': 'N/A', \
+		'eventid': 'N/A', \
+		'description': 'N/A', \
+		'username': 'N/A', \
+		'domain': 'N/A', \
+		'ipaddress': 'N/A', \
+		'computer': 'N/A', \
+		'datetime': 'N/A', \
 		'timestamp': 0, \
-		'logonid': '', \
-		'sourceid': '', \
-		'id': '',  \
-		'srcid': '', \
-		'raw': '' \
+		'logonid': 'N/A', \
+		'sourceid': 'N/A', \
+		'id': 'N/A',  \
+		'srcid': 'N/A', \
+		'raw': 'N/A' \
 	}
 
 # Event struct (logon & logoff)
@@ -118,8 +119,10 @@ EVENT_STRUCT = { \
 		# Metadata
 		'logon.meta.id': 'N/A', \
 		'logon.meta.uid': 'N/A', \
+		'logon.meta.index': 'N/A',\
 		'logoff.meta.id': 'N/A', \
 		'logoff.meta.uid': 'N/A', \
+		'logoff.meta.index': 'N/A', \
 		# Logged on at a given time
 		'mark.description': 'N/A', \
 		'mark.value': 'N/A' \
@@ -156,6 +159,8 @@ CSV_FIELDS = [ \
 		# Metadata
 		'logon.meta.id', \
 		'logon.meta.uid', \
+		'logon.meta.index', \
 		'logoff.meta.id', \
-		'logoff.meta.uid' \
+		'logoff.meta.uid', \
+		'logoff.meta.index' \
 	]

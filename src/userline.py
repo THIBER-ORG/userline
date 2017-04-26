@@ -111,6 +111,7 @@ def main():
 			log.info("\t- Datetime: {}".format(evt['datetime']))
 			log.info("\t- Computer: {}".format(evt['computer']))
 			log.info("\t- Uptime:   {}".format(uptime))
+			log.info("\t- Index:    {}".format(evt['index']))
 		else:
 			log.info("No shutdown found")
 		return
@@ -120,7 +121,7 @@ def main():
 		aux = utils.get_last_event(args.index)
 		if aux is not None:
 			lastevt = utils.build_event_from_source(aux)
-			log.info("Last event:\n")
+			log.info("Last event:")
 			log.info(json.dumps(lastevt,sort_keys=True,indent=4))
 		else:
 			log.info("No events found")
