@@ -1,5 +1,10 @@
 # Change Log
 
+## [v0.2.3b](https://github.com/thiber-org/userline/tree/v0.2.3b) (2017-04-26)
+[Full Changelog](https://github.com/thiber-org/userline/compare/v0.2.2b...v0.2.3b)
+
+- Added Dockerfile
+
 ## [v0.2.2b](https://github.com/thiber-org/userline/tree/v0.2.2b) (2017-04-26)
 [Full Changelog](https://github.com/thiber-org/userline/compare/v0.2.1b...v0.2.2b)
 
