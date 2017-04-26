@@ -11,7 +11,7 @@ It has three output modes:
 
 ## Installation
 	git clone https://github.com/THIBER-ORG/userline.git
-	cd userline
+	cd userline/src
 	sudo pip3 install -U -r requirements.txt
   
 ## Command line
