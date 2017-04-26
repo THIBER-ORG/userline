@@ -9,8 +9,9 @@ It has three output modes:
   2. CSV file
   3. Neo4J graph
 
-## Install dependencies
-
+## Installation
+	git clone https://github.com/THIBER-ORG/userline.git
+	cd userline
 	sudo pip3 install -U -r requirements.txt
   
 ## Command line
