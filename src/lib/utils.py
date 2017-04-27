@@ -12,6 +12,7 @@ import collections
 from dateutil import parser as dateparser
 from elasticsearch_dsl import Search,Q
 from elasticsearch_dsl.connections import connections
+from elasticsearch_dsl.response.hit import Hit
 
 from lib import config,extract
 
@@ -114,12 +115,18 @@ def build_event_from_source(item):
 	if item is None:
 		return event
 
-	event['eventid'] = item['event_identifier']
 
 	# get event id from datasource
-	event['sourceid'] = item.meta['id']
-	event['index'] = item.meta['index']
-	item = item.to_dict()
+	try:
+		event['eventid'] = item['event_identifier']
+		event['sourceid'] = item.meta['id']
+		event['index'] = item.meta['index']
+		item = item.to_dict()
+	except:
+		event['sourceid'] = item['_id']
+		event['index'] = item['_index']
+		item = item['_source']
+
 
 	# get logon type
 	aux = extract.re_logontype.search(item['xml_string'])
@@ -273,28 +280,47 @@ def get_last_shutdown(index,maxtstamp):
 		Q('match',event_identifier=config.EVENT_SHUTDOWN)
 	]
 
-	s = Search(using=conn, index=index).query(Q('bool',must=q)).filter('range',datetime={'lte':maxtstamp}).sort('-datetime')[0]
+	s = Search(using=conn, index=index).query(Q('bool',must=q)).filter('range',datetime={'lte':maxtstamp}).sort('-datetime')[0:0]
+	s.aggs.bucket('computer','terms',field='computer_name.keyword').bucket('shutdown','top_hits',size=1)
 
 	res = s.execute()
-	try:
-		evt = res[0]
-	except:
-		evt = None
+	ret = {}
+	for item in res.aggregations['computer']['buckets']:
+		ret[item['key']] = item['shutdown']['hits']['hits'][0]
 
-	return evt
+	if len(ret.keys()) == 0:
+		ret = None
 
-def get_last_event(index):
+	return ret
+
+def get_last_event(index,computer=None):
 	conn = connections.get_connection()
 	q = [ \
 		Q('match',data_type='windows:evtx:record')
 	]
 
+	if computer is not None:
+		q.append(Q('match',computer_name=computer))
+
 	s = Search(using=conn, index=index).query(Q('bool',must=q)).sort('-datetime')
 
+	if computer is None:
+		s = s[0:0]
+		s.aggs.bucket('computer','terms',field='computer_name.keyword').bucket('last','top_hits',size=1)
+
 	res = s.execute()
-	try:
-		evt = res[0]
-	except:
-		evt = None
+
+	if computer is None:
+		evt = {}
+		for item in res.aggregations['computer']['buckets']:
+			evt[item['key']] = item['last']['hits']['hits'][0]
+
+		if len(evt.keys()) == 0:
+			evt = None
+	else:
+		try:
+			evt = res[0]
+		except:
+			evt = None
 
 	return evt

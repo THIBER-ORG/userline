@@ -108,16 +108,18 @@ def main():
 	if args.last_shutdown is True:
 		aux = utils.get_last_shutdown(args.index,maxdate)
 		if aux is not None:
-			evt = utils.build_event_from_source(aux)
-			aux = utils.get_last_event(args.index)
-			lastevt = utils.build_event_from_source(aux)
-			uptime = timedelta(microseconds=(lastevt['timestamp'] - evt['timestamp'])*10**3)
 			log.info("Last shutdown:")
-			log.info("\t- Datetime: {}".format(evt['datetime']))
-			log.info("\t- Computer: {}".format(evt['computer']))
-			log.info("\t- Uptime:   {}".format(uptime))
-			log.info("\t- EvtIndex: {}".format(evt['index']))
-			log.info("\t- EvtId:    {}".format(evt['sourceid']))
+			for k in aux.keys():
+				item = aux[k]
+				evt = utils.build_event_from_source(item)
+				lastraw = utils.get_last_event(args.index,evt['computer'])
+				lastevt = utils.build_event_from_source(lastraw)
+				uptime = timedelta(microseconds=(lastevt['timestamp'] - evt['timestamp'])*10**3)
+				log.info("Computer: {}".format(evt['computer']))
+				log.info("\t- Datetime: {}".format(evt['datetime']))
+				log.info("\t- Uptime:   {}".format(uptime))
+				log.info("\t- EvtIndex: {}".format(evt['index']))
+				log.info("\t- EvtId:    {}".format(evt['sourceid']))
 		else:
 			log.info("No shutdown found")
 		return
@@ -126,9 +128,11 @@ def main():
 	if args.last_event is True:
 		aux = utils.get_last_event(args.index)
 		if aux is not None:
-			lastevt = utils.build_event_from_source(aux)
 			log.info("Last event:")
-			log.info(json.dumps(lastevt,sort_keys=True,indent=4))
+			for k in aux.keys():
+				lastevt = utils.build_event_from_source(aux[k])
+				log.info("Computer: {}".format(lastevt['computer']))
+				log.info(json.dumps(lastevt,sort_keys=True,indent=4))
 		else:
 			log.info("No events found")
 		return
