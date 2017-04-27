@@ -57,9 +57,9 @@ Example:
 	        https://github.com/thiber-org/userline
 	
 	usage: userline.py [-h] [-H ESHOSTS] [-S POOL_SIZE] -i INDEX
-	                   (-L | -E | -l | -w DATE) [-c PATH] [-n BOLT] [-f] [-s]
-	                   [-t MIN_DATE] [-T MAX_DATE] [-p PATTERN] [-I] [-m DATETIME]
-	                   [-v]
+	                   (-L | -E | -l | -w DATE) [-c PATH] [-n BOLT] [-F] [-f] [-s]
+	                   [-t MIN_DATE] [-T MAX_DATE] [-p PATTERN] [-I] [-v]
+	                   [-m DATETIME]
 	
 	optional arguments:
 	  -h, --help            show this help message and exit
@@ -78,7 +78,7 @@ Example:
 	  -E, --last-event      Gets last event data
 	  -l, --logons          Shows user logon activity
 	  -w DATE, --who-was-at DATE
-	                        Shows logged in users at a given time
+	                        Shows only logged on users at a given time
 	
 	Output:
 	  -c PATH, --csv-output PATH
@@ -86,6 +86,10 @@ Example:
 	  -n BOLT, --neo4j BOLT
 	                        Neo4j bolt with auth (format:
 	                        bolt://user:pass@host:port)
+	
+	CSV options:
+	  -F, --disable-timeframe
+	                        Do not create timeframe entries
 	
 	Neo4J options:
 	  -f, --neo4j-full-info
@@ -95,16 +99,17 @@ Example:
 	
 	Optional filtering arguments:
 	  -t MIN_DATE, --min-date MIN_DATE
-	                        Searches since specified date (default: 2016-04-17)
+	                        Searches since specified date (default: 2016-04-27)
 	  -T MAX_DATE, --max-date MAX_DATE
-	                        Searches up to specified date (default: 2017-04-17)
+	                        Searches up to specified date (default: 2017-04-27)
 	  -p PATTERN, --pattern PATTERN
 	                        Includes pattern in search
 	  -I, --include-local   Includes local services logons (default: Excluded)
-	  -m DATETIME, --mark-if-logged-at DATETIME
-	                        Marks logged in users at a given time
 	  -v, --verbose         Enables verbose mode
-
+	
+	Extra information:
+	  -m DATETIME, --mark-if-logged-at DATETIME
+	                        Marks logged on users at a given time
 
 ## EVTx Analisys
 
@@ -146,6 +151,7 @@ Getting the last shutdown event:
 	INFO - 	- Datetime: 2016-07-12 18:56:33+00:00
 	INFO - 	- Computer: ws01.evil.corp
 	INFO - 	- Uptime:   124 days, 23:24:03
+	INFO - 	- Index:    ir-1329585-events-security-windows
 
 Getting the last event:
 
@@ -165,18 +171,18 @@ Getting the last event:
 	INFO - {
 	    "computer": "ws01.evil.corp",
 	    "datetime": "2017-02-14 05:04:36+00:00",
-	    "description": "",
-	    "domain": "",
+	    "description": "N/A",
+	    "domain": "N/A",
 	    "eventid": 6006,
 	    "id": "cbc2794961fa5ced4366ef52673479faf4df5a53ca66280263526bbe0bee13af",
-	    "ipaddress": "",
-	    "logonid": "",
+	    "ipaddress": "N/A",
+	    "logonid": "N/A",
 	    "raw": "<Event xmlns=\"http://schemas.microsoft.com/win/2004/08/events/event\">\n  <System>\n    <Provider Name=\"EventLog\"/>\n    <EventID Qualifiers=\"32768\">6006</EventID>\n    <Level>4</Level>\n    <Task>0</Task>\n    <Keywords>0x0080000000000000</Keywords>\n    <TimeCreated SystemTime=\"2017-02-14T05:44:36.000000000Z\"/>\n    <EventRecordID>784</EventRecordID>\n    <Channel>System</Channel>\n    <Computer>ws01.evil.corp</Computer>\n    <Security/>\n  </System>\n  <EventData>\n    <Binary>0100000000000000</Binary>\n  </EventData>\n</Event>\n",
 	    "sourceid": "AOsBX5IrkRtSdYVCbxr4",
-	    "srcid": "",
+	    "srcid": "N/A",
 	    "timestamp": 1492458753000,
-	    "type": "",
-	    "username": ""
+	    "type": "N/A",
+	    "username": "N/A"
 	}
 
 Getting logon relations between two dates into a CSV file:
@@ -193,6 +199,7 @@ Getting logon relations between two dates into a CSV file:
 	        https://github.com/thiber-org/userline
 	
 	INFO - Building query
+	INFO - Found 297 events to be processed
 	INFO - Processing events
 	[====================] 100.0% Elapsed: 0m 02s ETA: 0m00s
 	INFO - 44 Logons processed in 0:00:02.051880
@@ -212,6 +219,7 @@ Getting logon relations into Neo4J graph:
 	        https://github.com/thiber-org/userline
 	
 	INFO - Building query
+	INFO - Found 297 events to be processed
 	INFO - Processing events
 	[====================] 100.0% Elapsed: 0m 02s ETA: 0m00s
 	INFO - 44 Logons processed in 0:00:02.051880
