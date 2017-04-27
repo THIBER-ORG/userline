@@ -34,7 +34,7 @@ def main():
 	print("        @sch3m4")
 	print("        https://github.com/thiber-org/userline")
 	print("")
-                                       
+
 
 	log = logging.getLogger(config.APP_NAME)
 	log.setLevel(logging.INFO)
@@ -56,11 +56,14 @@ def main():
 	action.add_argument("-L","--last-shutdown",help="Gets last shutdown data",action='store_true',default=False)
 	action.add_argument("-E","--last-event",help="Gets last event data",action='store_true',default=False)
 	action.add_argument("-l","--logons",help="Shows user logon activity",action='store_true',default=False)
-	action.add_argument("-w","--who-was-at",help="Shows logged in users at a given time",metavar="DATE")
+	action.add_argument("-w","--who-was-at",help="Shows only logged on users at a given time",metavar="DATE")
 
 	output = parser.add_argument_group('Output')
 	output.add_argument("-c","--csv-output",help="CSV Output file",type=argparse.FileType('w'),metavar="PATH")
 	output.add_argument("-n","--neo4j",help="Neo4j bolt with auth (format: bolt://user:pass@host:port)",metavar="BOLT")
+
+	csvout = parser.add_argument_group('CSV options')
+	csvout.add_argument("-F","--disable-timeframe",help="Do not create timeframe entries",action='store_true',default=False)
 
 	neoargs = parser.add_argument_group('Neo4J options')
 	neoargs.add_argument("-f","--neo4j-full-info",help="Saves full logon/logoff info in Neo4j relations",action='store_true',default=False)
@@ -71,8 +74,10 @@ def main():
 	optional.add_argument("-T","--max-date",help="Searches up to specified date (default: {})".format(defaults.MAX_DATE),default=defaults.MAX_DATE)
 	optional.add_argument("-p","--pattern",help="Includes pattern in search")
 	optional.add_argument("-I","--include-local",help="Includes local services logons (default: Excluded)",action='store_true', default=False)
-	optional.add_argument("-m","--mark-if-logged-at",help="Marks logged in users at a given time",metavar="DATETIME")
 	optional.add_argument("-v","--verbose",help="Enables verbose mode",action='store_true',default=False)
+
+	extrainfo = parser.add_argument_group('Extra information')
+	extrainfo.add_argument("-m","--mark-if-logged-at",help="Marks logged in users at a given time",metavar="DATETIME")
 
 	args = parser.parse_args()
 
@@ -135,6 +140,8 @@ def main():
 	csv = None
 	if args.csv_output is not None:
 		csv = CSV(args.csv_output)
+		if args.mark_if_logged_at is None:
+			csv.disable_mark()
 
 	neo = None
 	if args.neo4j is not None:
@@ -160,7 +167,20 @@ def main():
 
 	log.debug("Getting events count")
 	total = s.execute().hits.total
-	log.debug("Found {} events to be processed".format(total))
+	log.info("Found {} events to be processed".format(total))
+
+	# timeframe
+	if total > 0 and csv is not None and args.disable_timeframe is False:
+		frame = dict(config.EVENT_STRUCT)
+		for k in frame.keys():
+			frame[k] = "-"*10
+		frame[config.CSV_FIELDS[0]] = "TIMEFRAME/START"
+		frame['logon.datetime'] = args.min_date
+		frame['logon.timestamp'] = mindate
+		frame['logoff.datetime'] = args.min_date
+		frame['logoff.timestamp'] = mindate
+		csv.add_sequence(frame)
+
 	count = 0
 	proglen = 0
 	progress = 0
@@ -217,6 +237,17 @@ def main():
 		progress += 1
 		proglen = utils.draw_progress_bar(float((progress*100/total)/100.0),begin,proglen)
 
+	# timeframe
+	if total > 0 and csv is not None and args.disable_timeframe is False:
+		frame = dict(config.EVENT_STRUCT)
+		for k in frame.keys():
+			frame[k] = "-"*10
+		frame[config.CSV_FIELDS[0]] = "TIMEFRAME/END"
+		frame['logon.datetime'] = args.max_date
+		frame['logon.timestamp'] = maxdate
+		frame['logoff.datetime'] = args.max_date
+		frame['logoff.timestamp'] = maxdate
+		csv.add_sequence(frame)
 
 	total = timedelta(microseconds=int((time.time() - begin)*10**6))
 	print("")

@@ -130,6 +130,7 @@ EVENT_STRUCT = { \
 
 
 # CSV fields
+CSV_MARK_POS = [1,2]
 CSV_FIELDS = [ \
 		# Logon data
 		'duration', \
