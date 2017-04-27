@@ -24,6 +24,12 @@ class Neo4J():
 		self.neo.run("CREATE INDEX ON :Computer(name)")
 		self.neo.run("CREATE INDEX ON :Domain(name)")
 
+	def finish(self):
+		try:
+			self.neo.close()
+		except:
+			pass
+
 	def __get_logon_data(self,event):
 		tmp = ''
 		for i in CSV_FIELDS:
@@ -35,6 +41,8 @@ class Neo4J():
 		return "{{{}}}".format(tmp[1:])
 
 	def __add_domain(self,domain):
+		if domain == 'N/A' or domain == 'MicrosoftAccount' or domain == '-':
+			return None
 		prev = None
 		domain = domain.upper()
 		for dom in domain.split('.')[::-1]:
@@ -66,11 +74,14 @@ class Neo4J():
 	def __add_source_ip(self,ip):
 		srcip = "_{}".format(ip.replace('.','_').replace(':','_'))
 		self.neo.run("MERGE ({}:Computer {{name:'{}',label:'{}'}})".format(srcip,ip,ip))
+		return ip
 
 
 	def __add_user(self,user):
+		if user == 'N/A':
+			return None
 		username = user.upper()
-		usr = username.replace(' ','_')
+		usr = username.replace(' ','_').replace('@','').replace('-','_').replace('.','_')
 		self.neo.run("MERGE ({}:User {{name: '{}',label:'{}'}})".format(usr,username,user))
 		return username
 
@@ -83,8 +94,7 @@ class Neo4J():
 				source = event['logon.computer']
 				self.__add_computer(source)
 			else:
-				source = event['logon.srcip']
-				self.__add_source_ip(source)
+				source = self.__add_source_ip(event['logon.srcip'])
 
 		username = self.__add_user(event['logon.username'])
 		computer = self.__add_computer(event['logon.computer'])
@@ -98,7 +108,6 @@ class Neo4J():
 				exists = True
 			except:
 				exists = False
-			if exists is False:
 				self.rels['dstrelations'] = update_relations(self.rels['dstrelations'],{username:{computer: 1}})
 
 		if exists is False:
@@ -116,7 +125,6 @@ class Neo4J():
 			exists = True
 		except:
 			exists = False
-		if exists is False:
 			self.rels['domrelations'] = update_relations(self.rels['domrelations'],{username:{domain:1}})
 			self.neo.run("MATCH (user:User {{name:'{}'}}),(domain:Domain {{name:'{}'}}) MERGE (user)-[:MEMBER_OF]->(domain)".format(username,domain))
 
@@ -126,7 +134,6 @@ class Neo4J():
 			exists = True
 		except:
 			exists = False
-		if exists is False:
 			self.rels['srcdst'] = update_relations(self.rels['srcdst'],{source:{computer:1}})
 			self.neo.run("MATCH (src:Computer {{name:'{}'}}),(dst:Computer {{name:'{}'}}) MERGE (src)-[:ACCESS_TO]->(dst)".format(source,computer))
 

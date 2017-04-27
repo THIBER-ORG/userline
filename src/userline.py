@@ -236,7 +236,10 @@ def main():
 			if csv is not None:
 				csv.add_sequence(event)
 			if neo is not None:
-				neo.add_sequence(event,args.neo4j_full_info,args.unique_logon_rels)
+				try:
+					neo.add_sequence(event,args.neo4j_full_info,args.unique_logon_rels)
+				except:
+					print(event)
 			log.debug("Event stored")
 
 		progress += 1
@@ -257,6 +260,10 @@ def main():
 	total = timedelta(microseconds=int((time.time() - begin)*10**6))
 	print("")
 	log.info("{} Logons processed in {}".format(count,total))
+
+	if neo is not None:
+		neo.finish()
+
 	return
 
 
