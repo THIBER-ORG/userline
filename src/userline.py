@@ -116,7 +116,8 @@ def main():
 			log.info("\t- Datetime: {}".format(evt['datetime']))
 			log.info("\t- Computer: {}".format(evt['computer']))
 			log.info("\t- Uptime:   {}".format(uptime))
-			log.info("\t- Index:    {}".format(evt['index']))
+			log.info("\t- EvtIndex: {}".format(evt['index']))
+			log.info("\t- EvtId:    {}".format(evt['sourceid']))
 		else:
 			log.info("No shutdown found")
 		return
