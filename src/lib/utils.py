@@ -273,7 +273,7 @@ def get_last_shutdown(index,maxtstamp):
 		Q('match',event_identifier=config.EVENT_SHUTDOWN)
 	]
 
-	s = Search(using=conn, index=index).query(Q('bool',must=q)).filter('range',datetime={'lte':maxtstamp}).sort('-datetime')
+	s = Search(using=conn, index=index).query(Q('bool',must=q)).filter('range',datetime={'lte':maxtstamp}).sort('-datetime')[0]
 
 	res = s.execute()
 	try:
