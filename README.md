@@ -148,8 +148,8 @@ Getting the last shutdown event:
 	        https://github.com/thiber-org/userline
 	
 	INFO - Last shutdown:
+	INFO - Computer: ws01.evil.corp
 	INFO - 	- Datetime: 2016-07-12 18:56:33+00:00
-	INFO - 	- Computer: ws01.evil.corp
 	INFO - 	- Uptime:   124 days, 23:24:03
 	INFO - 	- EvtIndex: ir-1329585-events-security-windows
 	INFO - 	- EvtId:    AVsRMBloEoASMdQErSf-
@@ -168,7 +168,7 @@ Getting the last event:
 	        https://github.com/thiber-org/userline
 	
 	INFO - Last event:
-	
+	INFO - Computer: ws01.evil.corp
 	INFO - {
 	    "computer": "ws01.evil.corp",
 	    "datetime": "2017-02-14 05:04:36+00:00",
