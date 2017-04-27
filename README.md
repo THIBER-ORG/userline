@@ -5,11 +5,26 @@ This tool automates the process of creating logon relations from MS Windows Secu
 ![](https://raw.githubusercontent.com/thiber-org/userline/master/img/graph.png)
 
 It has three output modes:
-  1. Standard output
-  2. CSV file
-  3. Neo4J graph
+1. Standard output
+1. CSV file
+1. Neo4J graph
 
-## Installation
+# Content
+1. [Preparation](#preparation)
+
+1. [Command Line](#command-line)
+
+1. [EVTx Analisys](#evtx-analisys)
+
+1. [Indexing](#indexing)
+
+1. [Using the tool](#using-the-tool)
+
+1. [Querying Neo4J data](#querying-neo4j-data)
+
+1. [Removing Neo4J data](#removing-neo4j-data)
+
+## Preparation
 	git clone https://github.com/THIBER-ORG/userline.git
 	cd userline/src
 	sudo pip3 install -U -r requirements.txt
