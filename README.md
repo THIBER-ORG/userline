@@ -90,7 +90,7 @@ Note: psort elastic output is really slow, for better performance upload the .pl
 
 If your image does not already support it, enable elastic output psort module
 
-	$ docker run -ti --entry-point=/bin/bash -v /mnt/IR/1329585/:/data log2timeline/plaso
+	$ docker run -ti --entrypoint=/bin/bash -v /mnt/IR/1329585/:/data log2timeline/plaso
 	root@@d3a8d0e1f0ac:/home/plaso# apt-get update && apt-get install -y python-pip && pip install pyelasticsearch
 
 Process the events and store them into elasticsearch
