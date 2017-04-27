@@ -151,7 +151,8 @@ Getting the last shutdown event:
 	INFO - 	- Datetime: 2016-07-12 18:56:33+00:00
 	INFO - 	- Computer: ws01.evil.corp
 	INFO - 	- Uptime:   124 days, 23:24:03
-	INFO - 	- Index:    ir-1329585-events-security-windows
+	INFO - 	- EvtIndex: ir-1329585-events-security-windows
+	INFO - 	- EvtId:    AVsRMBloEoASMdQErSf-
 
 Getting the last event:
 
