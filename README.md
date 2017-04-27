@@ -11,17 +11,11 @@ It has three output modes:
 
 # Content
 1. [Preparation](#preparation)
-
 1. [Command Line](#command-line)
-
 1. [EVTx Analisys](#evtx-analisys)
-
 1. [Indexing](#indexing)
-
 1. [Using the tool](#using-the-tool)
-
 1. [Querying Neo4J data](#querying-neo4j-data)
-
 1. [Removing Neo4J data](#removing-neo4j-data)
 
 ## Preparation
