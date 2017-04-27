@@ -11,7 +11,8 @@ It has three output modes:
 
 # Content
 1. [Preparation](#preparation)
-1. [Building a docker image](#building-a-docker-image)
+  1. [Building a docker image](#building-a-docker-image)
+  1. [Running from docker](#running-from-docker)
 1. [Command Line](#command-line)
 1. [EVTx Analisys](#evtx-analisys)
 1. [Indexing](#indexing)
@@ -25,12 +26,22 @@ It has three output modes:
 	sudo pip3 install -U -r requirements.txt
 
 ### Building a docker image
-
 Optionally you can build a docker image as follows:
 
 	git clone https://github.com/THIBER-ORG/userline.git
 	cd userline
 	docker build . -t userline
+
+### Running from docker
+To work with UserLine when using the docker image, use the following syntax:
+
+	docker run --rm -ti --net=host -v [YOUR_DATA_PATH]:/data userline userline [PARAMETERS]
+
+Example:
+
+	docker run --rm -ti --net=host -v $(pwd)/data:/data userline userline -h
+
+Note: ``--net=host`` is only required if you're running ElasticSearch/Neo4J in another container on the same host.
 
 ## Command line
 
