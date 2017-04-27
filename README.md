@@ -11,6 +11,7 @@ It has three output modes:
 
 # Content
 1. [Preparation](#preparation)
+1. [Building a docker image](#building-a-docker-image)
 1. [Command Line](#command-line)
 1. [EVTx Analisys](#evtx-analisys)
 1. [Indexing](#indexing)
@@ -22,7 +23,15 @@ It has three output modes:
 	git clone https://github.com/THIBER-ORG/userline.git
 	cd userline/src
 	sudo pip3 install -U -r requirements.txt
-  
+
+### Building a docker image
+
+Optionally you can build a docker image as follows:
+
+	git clone https://github.com/THIBER-ORG/userline.git
+	cd userline
+	docker build . -t userline
+
 ## Command line
 
 	$ ./userline.py -h
