@@ -11,8 +11,8 @@ It has three output modes:
 
 # Content
 1. [Preparation](#preparation)
-  1. [Building a docker image](#building-a-docker-image)
-  1. [Running from docker](#running-from-docker)
+    1. [Building a docker image](#building-a-docker-image)
+    1. [Running from docker](#running-from-docker)
 1. [Command Line](#command-line)
 1. [EVTx Analisys](#evtx-analisys)
 1. [Indexing](#indexing)
@@ -41,7 +41,7 @@ Example:
 
 	docker run --rm -ti --net=host -v $(pwd)/data:/data userline userline -h
 
-Note: ``--net=host`` is only required if you're running ElasticSearch/Neo4J in another container on the same host.
+**Note**: ``--net=host`` is only required if you're running ElasticSearch/Neo4J in another container on the same host.
 
 ## Command line
 
@@ -115,7 +115,7 @@ Analyze EVTx files with [plaso](https://github.com/log2timeline/plaso)
 
 ## Indexing
 
-Note: psort elastic output is really slow, for better performance upload the .plaso file to [TimeSketch](https://github.com/google/timesketch)
+**Note**: psort elastic output is really slow, for better performance upload the .plaso file to [TimeSketch](https://github.com/google/timesketch)
 
 If your image does not already support it, enable elastic output psort module
 
