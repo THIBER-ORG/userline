@@ -163,4 +163,4 @@ class Neo4J():
 				exists = False
 			if exists is False:
 				self.rels['srcrelations'] = update_relations(self.rels['srclogin'],{username: {event['logon.srcid']:1}})
-				self.neo.run("MATCH (dst:User {{name:'{}'}}),(src:User {{name:'{}'}}) MERGE (dst)-[:FROM_SESSION {{logonid:'{}'}}]->(src)".format(username,event['logon.srcid'],self.sessions[event['logon.srcid']]))
+				self.neo.run("MATCH (dst:User {{name:'{}'}}),(src:User {{name:'{}'}}) MERGE (dst)-[:FROM_SESSION {{logonid:'{}'}}]->(src)".format(username,self.sessions[event['logon.srcid']],event['logon.srcid']))
