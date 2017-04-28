@@ -55,7 +55,7 @@ EVENT_DESCRIPTION = { \
 		EVENT_SCREENSAVER_DISMISSED: 'Screensaver dismissed' ,\
 		EVENT_LOGON: 'Logon' ,\
 		EVENT_LOGON_EXPLICIT: 'Logon with explicit credentials' ,\
-		EVENT_SESSION_RECONNECTED: 'Session reconnected' \
+		EVENT_SESSION_RECONNECTED: 'RDP Session reconnected' \
 		}
 
 # Event actions (logon/logoff)
