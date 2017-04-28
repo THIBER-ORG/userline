@@ -236,10 +236,7 @@ def main():
 			if csv is not None:
 				csv.add_sequence(event)
 			if neo is not None:
-				try:
-					neo.add_sequence(event,args.neo4j_full_info,args.unique_logon_rels)
-				except:
-					print(event)
+				neo.add_sequence(event,args.neo4j_full_info,args.unique_logon_rels)
 			log.debug("Event stored")
 
 		progress += 1

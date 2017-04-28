@@ -15,7 +15,7 @@ class Neo4J():
 		uri = url.split('@')[1]
 		data = ["{}{}".format(proto,uri),userpwd.split(':')[0], userpwd.split(':')[1]]
 		# TODO: Store this relations in a redis-like cache
-		self.rels = {'dstrelations':{}, 'domrelations': {},'srcrelations': {},'srcdst':{}}
+		self.rels = {'dstrelations':{}, 'domrelations': {},'srcrelations': {},'srcdst':{},'srclogin':{}}
 
 		# setup neo4j
 		self.drv = GraphDatabase.driver(data[0], auth=basic_auth(data[1], data[2]))
@@ -23,6 +23,9 @@ class Neo4J():
 		self.neo.run("CREATE INDEX ON :User(name)")
 		self.neo.run("CREATE INDEX ON :Computer(name)")
 		self.neo.run("CREATE INDEX ON :Domain(name)")
+
+		# users
+		self.sessions = {}
 
 	def finish(self):
 		try:
@@ -100,6 +103,9 @@ class Neo4J():
 		computer = self.__add_computer(event['logon.computer'])
 		domain = self.__add_domain(event['logon.domain'])
 
+		if username is not None:
+			self.sessions[event['logon.id']] = username
+
 		# check user-computer relation
 		exists = False
 		if uniquelogon is True:
@@ -148,3 +154,13 @@ class Neo4J():
 				self.rels['srcrelations'] = update_relations(self.rels['srcrelations'],{username: {source:1}})
 				self.neo.run("MATCH (src:Computer {{name:'{}'}}),(user:User {{name:'{}'}}) MERGE (user)-[:AUTH_FROM]->(src)".format(source,username))
 
+		# from session (TODO: Only if the source session has been processed. Fixit)
+		if event['logon.srcid'] != 'N/A' and event['logon.srcid'] in self.sessions.keys():
+			try:
+				aux = self.rels['srclogin'][username][event['logon.srcid']]
+				exists = True
+			except:
+				exists = False
+			if exists is False:
+				self.rels['srcrelations'] = update_relations(self.rels['srclogin'],{username: {event['logon.srcid']:1}})
+				self.neo.run("MATCH (dst:User {{name:'{}'}}),(src:User {{name:'{}'}}) MERGE (dst)-[:FROM_SESSION {{logonid:'{}'}}]->(src)".format(username,event['logon.srcid'],self.sessions[event['logon.srcid']]))
