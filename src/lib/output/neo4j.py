@@ -62,11 +62,19 @@ class Neo4J():
 		return domain.replace(' ','_')
 
 
-	def __add_computer(self,fqdn):
+	def __add_computer(self,fqdn,ip=None):
 		fqdn = fqdn.upper()
 		data = fqdn.split('.')
 		name = data[0]
-		self.neo.run("MERGE ({}:Computer {{name: '{}',label:'{}'}})".format(name,fqdn,name))
+
+		if ip is None:
+			query = "MERGE ({}:Computer {{name: '{}',label:'{}'}})".format(name,fqdn,name)
+		else:
+			fqdn = "{}({})".format(fqdn,ip)
+			query = "MERGE ({}:Computer {{name: '{}',label:'{}',ip: '{}'}})".format(name,fqdn,name,ip)
+
+		self.neo.run(query)
+
 		if len(data[1:]) > 0:
 			dom = '.'.join(data[1:])
 			self.__add_domain(dom)
@@ -93,11 +101,15 @@ class Neo4J():
 		# add logon source
 		source = None
 		if len(event['logon.srcip']) > 0:
-			if event['logon.srcip'] == "127.0.0.1":
+			orig = event['logon.srcip']
+			if orig in ["127.0.0.1","LOCAL"]:
 				source = event['logon.computer']
 				self.__add_computer(source)
+			elif event['logon.srccomputer'] != 'N/A':
+				source = self.__add_computer(event['logon.srccomputer'],event['logon.srcip'])
 			else:
-				source = self.__add_source_ip(event['logon.srcip'])
+				source = self.__add_source_ip(orig)
+
 
 		username = self.__add_user(event['logon.username'])
 		computer = self.__add_computer(event['logon.computer'])
