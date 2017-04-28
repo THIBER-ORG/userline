@@ -82,6 +82,7 @@ EVENT_SKEL = { \
 		'domain': 'N/A', \
 		'ipaddress': 'N/A', \
 		'computer': 'N/A', \
+		'srccomputer': 'N/A', \
 		'datetime': 'N/A', \
 		'timestamp': 0, \
 		'logonid': 'N/A', \
@@ -100,10 +101,12 @@ EVENT_STRUCT = { \
 		'logon.username': 'N/A', \
 		'logon.domain': 'N/A', \
 		'logon.srcip': 'N/A', \
+		'logon.srccomputer': 'N/A', \
 		'logon.computer': 'N/A', \
 		'logon.eventid': 'N/A', \
 		'logon.type': 'N/A', \
 		'logon.id': 'N/A', \
+		'logon.sessionname': 'N/A', \
 		'logon.srcid': 'N/A', \
 		'logon.timestamp': 0, \
 		# Logoff data
@@ -141,10 +144,12 @@ CSV_FIELDS = [ \
 		'logon.username', \
 		'logon.domain', \
 		'logon.srcip', \
+		'logon.srccomputer', \
 		'logon.computer', \
 		'logon.eventid', \
 		'logon.type', \
 		'logon.id', \
+		'logon.sessionname', \
 		'logon.srcid', \
 		'logon.timestamp', \
 		# Logoff data

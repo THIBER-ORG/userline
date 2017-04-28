@@ -162,6 +162,14 @@ def build_event_from_source(item):
 		val = 'N/A'
 	event['logonid'] = val
 
+	# get SessionName
+	aux = extract.re_sessionname.search(item['xml_string'])
+	try:
+		val = aux.group(1)
+	except:
+		val = 'N/A'
+	event['sessionname'] = val
+
 	# get SubjectLogonId
 	aux = extract.re_logonsrcid.search(item['xml_string'])
 	try:
@@ -177,6 +185,14 @@ def build_event_from_source(item):
 	except:
 		val = 'N/A'
 	event['computer'] = val
+
+	# get src computer name
+	aux = extract.re_srccomputer.search(item['xml_string'])
+	try:
+		val = aux.group(1)
+	except:
+		val = 'N/A'
+	event['srccomputer'] = val
 
 	# get target username
 	aux = extract.re_tusername.search(item['xml_string'])
@@ -231,9 +247,11 @@ def build_logon_sequence(duration,login,logout=None):
 			'logon.computer': login['computer'], \
 			'logon.domain': login['domain'], \
 			'logon.srcip': login['ipaddress'], \
+			'logon.srccomputer': login['srccomputer'], \
 			'logon.datetime': login['datetime'], \
 			'logon.timestamp': login['timestamp'], \
 			'logon.id': login['logonid'], \
+			'logon.sessionname': login['sessionname'], \
 			'logon.srcid': login['srcid'] \
 		})
 
