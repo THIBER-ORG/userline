@@ -17,6 +17,7 @@ It has three output modes:
 1. [EVTx Analisys](#evtx-analisys)
 1. [Indexing](#indexing)
 1. [Using the tool](#using-the-tool)
+1. [Processed events](#processed-events)
 1. [Querying Neo4J data](#querying-neo4j-data)
 1. [Removing Neo4J data](#removing-neo4j-data)
 
@@ -229,6 +230,20 @@ Getting logon relations into Neo4J graph:
 Query the results using Neo4J CQL
 ![](https://raw.githubusercontent.com/thiber-org/userline/master/img/result.png)
 
+## Processed events
+### Logon events
+- EVENT_WORKSTATION_LOCKED = 4800
+- EVENT_SCREENSAVER_INVOKED = 4802
+- EVENT_SHUTDOWN = 4609
+- EVENT_LOGOFF = 4634
+- EVENT_SESSION_DISCONNECTED = 4779
+
+### Logoff events
+- EVENT_WORKSTATION_UNLOCKED = 4801
+- EVENT_SCREENSAVER_DISMISSED = 4803
+- EVENT_LOGON = 4624
+- EVENT_LOGON_EXPLICIT = 4648
+- EVENT_SESSION_RECONNECTED = 4778
 
 ## Querying Neo4J data
 
