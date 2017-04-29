@@ -83,6 +83,9 @@ def get_logout_event(index,logonid,timestamp,maxtstamp):
 	"""
 	conn = connections.get_connection()
 
+	# workaround to fix time presition issues
+	timestamp = timestamp - 999
+
 	logoff = get_dsl_logoff_query()
 	q = [ \
 		Q('match',data_type='windows:evtx:record') , \

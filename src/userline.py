@@ -189,7 +189,11 @@ def main():
 		logout = None
 
 		# local service check
-		if args.include_local is False and ( login['domain'] == config.LOCAL_DOMAIN or login['username'].upper() == "{}$".format(login['computer'].split('.')[0]).upper()):
+		if args.include_local is False and ( \
+							login['domain'] == config.LOCAL_DOMAIN or \
+							login['username'].upper() == "{}$".format(login['computer'].split('.')[0]).upper() or \
+							login['logonid'] == config.CONSTANT_NA \
+						):
 			discard = True
 			log.debug("Discarding event")
 		else:

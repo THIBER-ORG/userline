@@ -25,6 +25,7 @@ LOGON_TYPES = { \
 			}
 # Local domain
 LOCAL_DOMAIN = 'NT AUTHORITY'
+CONSTANT_NA = 'N/A'
 
 # Logoff events
 EVENT_ACTION_LOGOFF = "Logoff"
@@ -33,7 +34,8 @@ EVENT_SCREENSAVER_INVOKED = 4802
 EVENT_SHUTDOWN = 4609
 EVENT_LOGOFF = 4634
 EVENT_SESSION_DISCONNECTED = 4779
-EVENTS_LOGOFF = [EVENT_WORKSTATION_LOCKED,EVENT_SCREENSAVER_INVOKED,EVENT_SHUTDOWN,EVENT_LOGOFF,EVENT_SESSION_DISCONNECTED]
+EVENT_LOGOFF_INITIATED = 4647
+EVENTS_LOGOFF = [EVENT_WORKSTATION_LOCKED,EVENT_SCREENSAVER_INVOKED,EVENT_SHUTDOWN,EVENT_LOGOFF,EVENT_SESSION_DISCONNECTED,EVENT_LOGOFF_INITIATED]
 
 # Logon events
 EVENT_ACTION_LOGON = "Logon"
@@ -74,55 +76,55 @@ EVENT_ACTION = { \
 
 # Event skel (logon/logoff)
 EVENT_SKEL = { \
-		'index': 'N/A', \
-		'type': 'N/A', \
-		'eventid': 'N/A', \
-		'description': 'N/A', \
-		'username': 'N/A', \
-		'domain': 'N/A', \
-		'ipaddress': 'N/A', \
-		'computer': 'N/A', \
-		'srccomputer': 'N/A', \
-		'datetime': 'N/A', \
+		'index': CONSTANT_NA, \
+		'type': CONSTANT_NA, \
+		'eventid': CONSTANT_NA, \
+		'description': CONSTANT_NA, \
+		'username': CONSTANT_NA, \
+		'domain': CONSTANT_NA, \
+		'ipaddress': CONSTANT_NA, \
+		'computer': CONSTANT_NA, \
+		'srccomputer': CONSTANT_NA, \
+		'datetime': CONSTANT_NA, \
 		'timestamp': 0, \
-		'logonid': 'N/A', \
-		'sourceid': 'N/A', \
-		'id': 'N/A',  \
-		'srcid': 'N/A', \
-		'raw': 'N/A' \
+		'logonid': CONSTANT_NA, \
+		'sourceid': CONSTANT_NA, \
+		'id': CONSTANT_NA,  \
+		'srcid': CONSTANT_NA, \
+		'raw': CONSTANT_NA \
 	}
 
 # Event struct (logon & logoff)
 EVENT_STRUCT = { \
 		# Logon data
-		'duration': 'N/A', \
-		'logon.datetime': 'N/A', \
-		'logon.description': 'N/A', \
-		'logon.username': 'N/A', \
-		'logon.domain': 'N/A', \
-		'logon.srcip': 'N/A', \
-		'logon.srccomputer': 'N/A', \
-		'logon.computer': 'N/A', \
-		'logon.eventid': 'N/A', \
-		'logon.type': 'N/A', \
-		'logon.id': 'N/A', \
-		'logon.sessionname': 'N/A', \
-		'logon.srcid': 'N/A', \
+		'duration': CONSTANT_NA, \
+		'logon.datetime': CONSTANT_NA, \
+		'logon.description': CONSTANT_NA, \
+		'logon.username': CONSTANT_NA, \
+		'logon.domain': CONSTANT_NA, \
+		'logon.srcip': CONSTANT_NA, \
+		'logon.srccomputer': CONSTANT_NA, \
+		'logon.computer': CONSTANT_NA, \
+		'logon.eventid': CONSTANT_NA, \
+		'logon.type': CONSTANT_NA, \
+		'logon.id': CONSTANT_NA, \
+		'logon.sessionname': CONSTANT_NA, \
+		'logon.srcid': CONSTANT_NA, \
 		'logon.timestamp': 0, \
 		# Logoff data
-		'logoff.datetime': 'N/A', \
-		'logoff.eventid': 'N/A', \
+		'logoff.datetime': CONSTANT_NA, \
+		'logoff.eventid': CONSTANT_NA, \
 		'logoff.timestamp': 0, \
 		# Metadata
-		'logon.meta.id': 'N/A', \
-		'logon.meta.uid': 'N/A', \
-		'logon.meta.index': 'N/A',\
-		'logoff.meta.id': 'N/A', \
-		'logoff.meta.uid': 'N/A', \
-		'logoff.meta.index': 'N/A', \
+		'logon.meta.id': CONSTANT_NA, \
+		'logon.meta.uid': CONSTANT_NA, \
+		'logon.meta.index': CONSTANT_NA,\
+		'logoff.meta.id': CONSTANT_NA, \
+		'logoff.meta.uid': CONSTANT_NA, \
+		'logoff.meta.index': CONSTANT_NA, \
 		# Logged on at a given time
-		'mark.description': 'N/A', \
-		'mark.value': 'N/A' \
+		'mark.description': CONSTANT_NA, \
+		'mark.value': CONSTANT_NA \
 	}
 
 
