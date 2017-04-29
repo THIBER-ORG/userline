@@ -244,11 +244,11 @@ Query the results using Neo4J CQL
 - EVENT_SHUTDOWN = 4609
 - EVENT_LOGOFF = 4634
 - EVENT_SESSION_DISCONNECTED = 4779
+- EVENT_LOGOFF_INITIATED = 4647
 
 ## Querying Neo4J data
 
 	MATCH(n) RETURN(n)
-
 
 ## Removing Neo4J data
 
