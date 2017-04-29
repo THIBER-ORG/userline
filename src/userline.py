@@ -156,14 +156,14 @@ def main():
 	# Look for first required events
 	q = Q('match',data_type='windows:evtx:record') & utils.get_dsl_logon_query()
 
-	if args.include_local is False:
-		q = q & \
-			(
-				~Q('term',xml_string="0x00000000000003e7") & \
-				~Q('term',xml_string="0x00000000000003e5") & \
-				~Q('term',xml_string="0x00000000000003e4") & \
-				~Q('term',xml_string="0x00000000000003e3")
-			)
+#	if args.include_local is False:
+#		q = q & \
+#			(
+#				~Q('term',xml_string="0x00000000000003e7") & \
+#				~Q('term',xml_string="0x00000000000003e5") & \
+#				~Q('term',xml_string="0x00000000000003e4") & \
+#				~Q('term',xml_string="0x00000000000003e3")
+#			)
 
 	if args.pattern is not None:
 		q = q & Q('query_string',query=args.pattern,analyze_wildcard=True)
