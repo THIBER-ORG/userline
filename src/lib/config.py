@@ -12,16 +12,25 @@ VERSION = "0.2.2b"
 LOG_FORMAT = '%(levelname)s - %(message)s'
 
 # Logon event types
+LOGON_TYPE_INTERACTIVE = 2
+LOGON_TYPE_NETWORK = 3
+LOGON_TYPE_BATCH = 4
+LOGON_TYPE_SERVICE = 5
+LOGON_TYPE_UNLOCK = 7
+LOGON_TYPE_NETWORKCLEAR = 8
+LOGON_TYPE_NEWCREDS = 9
+LOGON_TYPE_REMOTEINTERACTIVE = 10
+LOGON_TYPE_CACHEDINTERACTIVE = 11
 LOGON_TYPES = { \
-			2: 'Interactive (logon at keyboard and screen of system)', \
-			3: 'Network (i.e. connection to shared folder on this computer from elsewhere on network)', \
-			4: 'Batch (i.e. scheduled task)', \
-			5: 'Service (Service startup)', \
-			7: 'Unlock (i.e. unnattended workstation with password protected screen saver)', \
-			8: 'NetworkCleartext (Logon with credentials sent in the clear text. Most often indicates a logon to IIS with "basic authentication") See this article for more information.', \
-			9: 'NewCredentials such as with RunAs or mapping a network drive with alternate credentials.  This logon type does not seem to show up in any events.  If you want to track users attempting to logon with alternate credentials see 4648.', \
-			10: 'RemoteInteractive (Terminal Services, Remote Desktop or Remote Assistance)', \
-			11: 'CachedInteractive (logon with cached domain credentials such as when logging on to a laptop when away from the network)', \
+			LOGON_TYPE_INTERACTIVE: 'Interactive (logon at keyboard and screen of system)', \
+			LOGON_TYPE_NETWORK: 'Network (i.e. connection to shared folder on this computer from elsewhere on network)', \
+			LOGON_TYPE_BATCH: 'Batch (i.e. scheduled task)', \
+			LOGON_TYPE_SERVICE: 'Service (Service startup)', \
+			LOGON_TYPE_UNLOCK: 'Unlock (i.e. unnattended workstation with password protected screen saver)', \
+			LOGON_TYPE_NETWORKCLEAR: 'NetworkCleartext (Logon with credentials sent in the clear text. Most often indicates a logon to IIS with "basic authentication") See this article for more information.', \
+			LOGON_TYPE_NEWCREDS: 'NewCredentials such as with RunAs or mapping a network drive with alternate credentials.  This logon type does not seem to show up in any events.  If you want to track users attempting to logon with alternate credentials see 4648.', \
+			LOGON_TYPE_REMOTEINTERACTIVE: 'RemoteInteractive (Terminal Services, Remote Desktop or Remote Assistance)', \
+			LOGON_TYPE_CACHEDINTERACTIVE: 'CachedInteractive (logon with cached domain credentials such as when logging on to a laptop when away from the network)', \
 			}
 # Local domain
 LOCAL_DOMAIN = 'NT AUTHORITY'
@@ -29,22 +38,24 @@ CONSTANT_NA = 'N/A'
 
 # Logoff events
 EVENT_ACTION_LOGOFF = "Logoff"
-EVENT_WORKSTATION_LOCKED = 4800
-EVENT_SCREENSAVER_INVOKED = 4802
 EVENT_SHUTDOWN = 4609
 EVENT_LOGOFF = 4634
 EVENT_SESSION_DISCONNECTED = 4779
 EVENT_LOGOFF_INITIATED = 4647
-EVENTS_LOGOFF = [EVENT_WORKSTATION_LOCKED,EVENT_SCREENSAVER_INVOKED,EVENT_SHUTDOWN,EVENT_LOGOFF,EVENT_SESSION_DISCONNECTED,EVENT_LOGOFF_INITIATED]
+EVENTS_LOGOFF = [EVENT_SHUTDOWN,EVENT_LOGOFF,EVENT_SESSION_DISCONNECTED,EVENT_LOGOFF_INITIATED]
+EVENT_WORKSTATION_LOCKED = 4800
+EVENT_SCREENSAVER_INVOKED = 4802
+EVENTS_LOGOFF_SCREEN = [EVENT_WORKSTATION_LOCKED,EVENT_SCREENSAVER_INVOKED]
 
 # Logon events
 EVENT_ACTION_LOGON = "Logon"
-EVENT_WORKSTATION_UNLOCKED = 4801
-EVENT_SCREENSAVER_DISMISSED = 4803
 EVENT_LOGON = 4624
 EVENT_LOGON_EXPLICIT = 4648
 EVENT_SESSION_RECONNECTED = 4778
-EVENTS_LOGON = [EVENT_WORKSTATION_UNLOCKED,EVENT_SCREENSAVER_DISMISSED,EVENT_LOGON,EVENT_LOGON_EXPLICIT,EVENT_SESSION_RECONNECTED]
+EVENTS_LOGON = [EVENT_LOGON,EVENT_LOGON_EXPLICIT,EVENT_SESSION_RECONNECTED]
+EVENT_SCREENSAVER_DISMISSED = 4803
+EVENT_WORKSTATION_UNLOCKED = 4801
+EVENTS_LOGON_SCREEN = [EVENT_SCREENSAVER_DISMISSED,EVENT_WORKSTATION_UNLOCKED]
 
 # Event descriptions
 EVENT_DESCRIPTION = { \

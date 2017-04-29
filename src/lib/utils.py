@@ -55,7 +55,7 @@ def update_relations(rel,new):
 	return rel
 
 
-def get_dsl_logoff_query():
+def get_dsl_logoff_query(screen):
 	q = None
 	for evtid in config.EVENTS_LOGOFF:
 		tmp = Q("match",event_identifier=evtid)
@@ -64,9 +64,13 @@ def get_dsl_logoff_query():
 		else:
 			q = q | tmp
 
+	if screen is True:
+		for evtid in config.EVENTS_LOGOFF_SCREEN:
+			q = q | Q("match",event_identifier=evtid)
+
 	return q
 
-def get_dsl_logon_query():
+def get_dsl_logon_query(screen):
 	q = None
 	for evtid in config.EVENTS_LOGON:
 		tmp = Q("match",event_identifier=evtid)
@@ -74,10 +78,15 @@ def get_dsl_logon_query():
 			q = tmp
 		else:
 			q = q | tmp
+
+	if screen is True:
+		for evtid in config.EVENTS_LOGON_SCREEN:
+			q = q | Q("match",event_identifier=evtid)
+
 	return q
 
 
-def get_logout_event(index,logonid,timestamp,maxtstamp):
+def get_logout_event(index,logonid,timestamp,maxtstamp,screen):
 	"""
 	Look for the logoff event belonging to the given logon id or a shutdown event.
 	"""
@@ -86,7 +95,7 @@ def get_logout_event(index,logonid,timestamp,maxtstamp):
 	# workaround to fix time presition issues
 	timestamp = timestamp - 999
 
-	logoff = get_dsl_logoff_query()
+	logoff = get_dsl_logoff_query(screen)
 	q = [ \
 		Q('match',data_type='windows:evtx:record') , \
 		Q('match',xml_string=logonid) , \

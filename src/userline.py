@@ -74,6 +74,7 @@ def main():
 	optional.add_argument("-T","--max-date",help="Searches up to specified date (default: {})".format(defaults.MAX_DATE),default=defaults.MAX_DATE)
 	optional.add_argument("-p","--pattern",help="Includes pattern in search")
 	optional.add_argument("-I","--include-local",help="Includes local services logons (default: Excluded)",action='store_true', default=False)
+	optional.add_argument("-k","--include-locks",help="Includes workstation/screensaver lock events (default: Excluded)",action='store_true', default=False)
 	optional.add_argument("-v","--verbose",help="Enables verbose mode",action='store_true',default=False)
 
 	extrainfo = parser.add_argument_group('Extra information')
@@ -154,7 +155,7 @@ def main():
 
 	log.info("Building query")
 	# Look for first required events
-	q = Q('match',data_type='windows:evtx:record') & utils.get_dsl_logon_query()
+	q = Q('match',data_type='windows:evtx:record') & utils.get_dsl_logon_query(args.include_locks)
 
 	if args.pattern is not None:
 		q = q & Q('query_string',query=args.pattern,analyze_wildcard=True)
@@ -196,8 +197,13 @@ def main():
 						):
 			discard = True
 			log.debug("Discarding event")
+
+		# workstation/screensaver locks
+		elif args.include_locks is False and ( login['type'] == config.LOGON_TYPE_UNLOCK or login['eventid'] == config.EVENT_WORKSTATION_UNLOCKED):
+			discard = True
+			log.debug("Discarding event")
 		else:
-			aux = utils.get_logout_event(args.index,login['logonid'],login['timestamp'],maxdate)
+			aux = utils.get_logout_event(args.index,login['logonid'],login['timestamp'],maxdate,args.include_locks)
 			logout = utils.build_event_from_source(aux)
 			log.debug("Got logoff event for login id {}".format(login['id']))
 
