@@ -111,13 +111,7 @@ EVENT_STRUCT = { \
 		'logon.timestamp': 0, \
 		# Logoff data
 		'logoff.datetime': 'N/A', \
-		'logoff.description': 'N/A', \
-		'logoff.username': 'N/A', \
-		'logoff.domain': 'N/A', \
-		'logoff.computer': 'N/A', \
 		'logoff.eventid': 'N/A', \
-		'logoff.type': 'N/A', \
-		'logoff.id': 'N/A', \
 		'logoff.timestamp': 0, \
 		# Metadata
 		'logon.meta.id': 'N/A', \
@@ -154,13 +148,7 @@ CSV_FIELDS = [ \
 		'logon.timestamp', \
 		# Logoff data
 		'logoff.datetime', \
-		'logoff.description', \
-		'logoff.username', \
-		'logoff.domain', \
-		'logoff.computer', \
 		'logoff.eventid', \
-		'logoff.type', \
-		'logoff.id', \
 		'logoff.timestamp', \
 		# Metadata
 		'logon.meta.id', \

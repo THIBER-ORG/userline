@@ -137,9 +137,10 @@ def build_event_from_source(item):
 	event['type'] = val
 
 	try:
-		val = config.EVENT_DESCRIPTION[event['eventid']]
 		if event['type'] in config.LOGON_TYPES.keys():
-			val += " - {}".format(config.LOGON_TYPES[event['type']])
+			val = config.LOGON_TYPES[event['type']]
+		else:
+			val = config.EVENT_DESCRIPTION[event['eventid']]
 	except:
 		val = 'N/A'
 
@@ -258,15 +259,9 @@ def build_logon_sequence(duration,login,logout=None):
 	if logout is not None:
 		ret.update({ \
 				# logoff data
-				'logoff.type': logout['type'], \
 				'logoff.eventid': logout['eventid'], \
-				'logoff.description': logout['description'], \
-				'logoff.username': logout['username'], \
-				'logoff.domain': logout['domain'], \
-				'logoff.computer': logout['computer'], \
 				'logoff.datetime': logout['datetime'], \
 				'logoff.timestamp': logout['timestamp'], \
-				'logoff.id': logout['logonid']
 			})
 
 	ret.update({

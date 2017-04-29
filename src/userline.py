@@ -156,15 +156,6 @@ def main():
 	# Look for first required events
 	q = Q('match',data_type='windows:evtx:record') & utils.get_dsl_logon_query()
 
-#	if args.include_local is False:
-#		q = q & \
-#			(
-#				~Q('term',xml_string="0x00000000000003e7") & \
-#				~Q('term',xml_string="0x00000000000003e5") & \
-#				~Q('term',xml_string="0x00000000000003e4") & \
-#				~Q('term',xml_string="0x00000000000003e3")
-#			)
-
 	if args.pattern is not None:
 		q = q & Q('query_string',query=args.pattern,analyze_wildcard=True)
 
@@ -197,39 +188,37 @@ def main():
 		duration = ''
 		logout = None
 
-		aux = utils.get_logout_event(args.index,login['logonid'],login['timestamp'],maxdate)
-		logout = utils.build_event_from_source(aux)
-		log.debug("Got logoff event for login id {}".format(login['id']))
-
-		if logout['timestamp'] > 0:
-			aux = logout['timestamp'] - login['timestamp']
-			try:
-				duration = str(timedelta(microseconds=aux*10**3))
-			except:
-				duration = '-'
-
-		event = utils.build_logon_sequence(duration,login,logout)
-		if logout is not None:
-			log.debug("Logon sequence complete")
-
-		discard = False
-		if args.who_was_at is not None:
-			if login['timestamp'] > whowasat or (logout['timestamp'] > 0 and logout['timestamp'] < whowasat):
-				discard = True
-
-		if args.mark_if_logged_at is not None:
-			event['mark.description'] = "Logged on at {}".format(args.mark_if_logged_at)
-			if login['timestamp'] > whowasat or (logout['timestamp'] > 0 and logout['timestamp'] < whowasat):
-				event['mark.value'] = False
-			else:
-				event['mark.value'] = True
-
-		if discard is False and \
-			args.include_local is False and \
-			( event['logon.domain'] == config.LOCAL_DOMAIN or event['logon.username'].upper() == "{}$".format(event['logon.computer'].split('.')[0]).upper() \
-		):
+		# local service check
+		if args.include_local is False and ( login['domain'] == config.LOCAL_DOMAIN or login['username'].upper() == "{}$".format(login['computer'].split('.')[0]).upper()):
 			discard = True
 			log.debug("Discarding event")
+		else:
+			aux = utils.get_logout_event(args.index,login['logonid'],login['timestamp'],maxdate)
+			logout = utils.build_event_from_source(aux)
+			log.debug("Got logoff event for login id {}".format(login['id']))
+
+			if logout['timestamp'] > 0:
+				aux = logout['timestamp'] - login['timestamp']
+				try:
+					duration = str(timedelta(microseconds=aux*10**3))
+				except:
+					duration = '-'
+
+			event = utils.build_logon_sequence(duration,login,logout)
+			if logout is not None:
+				log.debug("Logon sequence complete")
+
+			if args.mark_if_logged_at is not None:
+				event['mark.description'] = "Logged on at {}".format(args.mark_if_logged_at)
+				if login['timestamp'] > whowasat or (logout['timestamp'] > 0 and logout['timestamp'] < whowasat):
+					event['mark.value'] = False
+				else:
+					event['mark.value'] = True
+
+			discard = False
+			if args.who_was_at is not None and (login['timestamp'] > whowasat or (logout['timestamp'] > 0 and logout['timestamp'] < whowasat)):
+				discard = True
+				log.debug("Discarding event")
 
 		if discard is False:
 			count += 1
