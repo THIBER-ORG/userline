@@ -199,7 +199,7 @@ def main():
 			log.debug("Discarding event")
 
 		# workstation/screensaver locks
-		elif args.include_locks is False and ( login['type'] == config.LOGON_TYPE_UNLOCK or login['eventid'] == config.EVENT_WORKSTATION_UNLOCKED):
+		elif args.include_locks is False and login['type'] == config.LOGON_TYPE_UNLOCK:
 			discard = True
 			log.debug("Discarding event")
 		else:
