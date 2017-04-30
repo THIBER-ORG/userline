@@ -17,6 +17,7 @@ It has three output modes:
 1. [EVTx Analisys](#evtx-analisys)
 1. [Indexing](#indexing)
 1. [Using the tool](#using-the-tool)
+1. [SQLite import](#sqlite-import)
 1. [Processed events](#processed-events)
 1. [Querying Neo4J data](#querying-neo4j-data)
 1. [Removing Neo4J data](#removing-neo4j-data)
@@ -229,6 +230,22 @@ Getting logon relations into Neo4J graph:
 
 Query the results using Neo4J CQL
 ![](https://raw.githubusercontent.com/thiber-org/userline/master/img/result.png)
+
+## SQLite Import
+
+Once you've generated the CSV output, you can import the data into a SQLite database and query the data through SQL queries:
+
+	$ sqlite3 logon.db
+	SQLite version 3.11.0 2016-02-15 17:29:24
+	Enter ".help" for usage hints.
+	sqlite> .mode csv userline
+	sqlite> .import output.csv userline
+	sqlite> .tables
+	userline
+	sqlite> .q
+	$ sqliteman logon.db
+
+![](https://raw.githubusercontent.com/thiber-org/userline/master/img/sqliteman.png)
 
 ## Processed events
 ### Logon events
