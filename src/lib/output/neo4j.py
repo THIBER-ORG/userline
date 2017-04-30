@@ -50,7 +50,7 @@ class Neo4J():
 		domain = domain.upper()
 		for dom in domain.split('.')[::-1]:
 			orig = dom
-			dom = dom.replace(' ','_')
+			dom = dom.replace(' ','_').replace('-','_')
 
 			if prev is None:
 				self.neo.run("MERGE ({}:Domain {{name: '{}',label:'{}'}})".format(dom,dom,orig))
@@ -59,11 +59,11 @@ class Neo4J():
 				self.neo.run("MERGE ({}:Domain {{name: '{}.{}',label:'{}'}})".format(dom,dom,prev,orig))
 				self.neo.run("MATCH (subdomain:Domain {{name:'{}.{}'}}),(domain:Domain {{name:'{}'}}) MERGE (subdomain)-[:BELONGS_TO]->(domain)".format(dom,prev,prev))
 				prev = "{}.{}".format(dom,prev)
-		return domain.replace(' ','_')
+		return domain.replace(' ','_').replace('-','_')
 
 
 	def __add_computer(self,fqdn,ip=None):
-		fqdn = fqdn.upper()
+		fqdn = fqdn.upper().replace('-','_')
 		data = fqdn.split('.')
 		name = data[0]
 
