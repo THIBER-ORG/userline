@@ -60,7 +60,7 @@ Example:
 	
 	usage: userline.py [-h] [-H ESHOSTS] [-S POOL_SIZE] -i INDEX
 	                   (-L | -E | -l | -w DATE) [-c PATH] [-n BOLT] [-F] [-f] [-s]
-	                   [-t MIN_DATE] [-T MAX_DATE] [-p PATTERN] [-I] [-v]
+	                   [-t MIN_DATE] [-T MAX_DATE] [-p PATTERN] [-I] [-k] [-v]
 	                   [-m DATETIME]
 	
 	optional arguments:
@@ -101,17 +101,19 @@ Example:
 	
 	Optional filtering arguments:
 	  -t MIN_DATE, --min-date MIN_DATE
-	                        Searches since specified date (default: 2016-04-27)
+	                        Searches since specified date (default: 2016-05-01)
 	  -T MAX_DATE, --max-date MAX_DATE
-	                        Searches up to specified date (default: 2017-04-27)
+	                        Searches up to specified date (default: 2017-05-01)
 	  -p PATTERN, --pattern PATTERN
 	                        Includes pattern in search
 	  -I, --include-local   Includes local services logons (default: Excluded)
+	  -k, --include-locks   Includes workstation/screensaver lock events (default:
+	                        Excluded)
 	  -v, --verbose         Enables verbose mode
 	
 	Extra information:
 	  -m DATETIME, --mark-if-logged-at DATETIME
-	                        Marks logged on users at a given time
+	                        Marks logged in users at a given time
 
 ## EVTx Analisys
 
