@@ -17,10 +17,11 @@ It has three output modes:
 1. [EVTx Analisys](#evtx-analisys)
 1. [Indexing](#indexing)
 1. [Using the tool](#using-the-tool)
+1. [Neo4J Export](#neo4j-export)
+    1. [Querying Neo4J data](#querying-neo4j-data)
+    1. [Removing Neo4J data](#removing-neo4j-data)
 1. [SQLite import](#sqlite-import)
 1. [Processed events](#processed-events)
-1. [Querying Neo4J data](#querying-neo4j-data)
-1. [Removing Neo4J data](#removing-neo4j-data)
 
 ## Preparation
 	git clone https://github.com/THIBER-ORG/userline.git
@@ -210,6 +211,8 @@ Getting logon relations between two dates into a CSV file:
 	[====================] 100.0% Elapsed: 0m 02s ETA: 0m00s
 	INFO - 44 Logons processed in 0:00:02.051880
 
+# Neo4J Export
+
 Getting logon relations into Neo4J graph:
 
 	$ docker run -d -p 7474:7474 -p 7687:7687 -v $HOME/neo4j/data:/data neo4j
@@ -230,9 +233,19 @@ Getting logon relations into Neo4J graph:
 	[====================] 100.0% Elapsed: 0m 02s ETA: 0m00s
 	INFO - 44 Logons processed in 0:00:02.051880
 
+## Querying Neo4J data
+
+	MATCH(n) RETURN(n)
+	
 Query the results using Neo4J CQL
+
 ![](https://raw.githubusercontent.com/thiber-org/userline/master/img/result.png)
 
+## Removing Neo4J data
+
+	MATCH(n)-[r]-(m) DELETE n,r,m
+	MATCH(n) DELETE n
+	
 ## SQLite Import
 
 Once you've generated the CSV output, you can import the data into a SQLite database and query the data through SQL queries:
@@ -264,14 +277,3 @@ Once you've generated the CSV output, you can import the data into a SQLite data
 - EVENT_LOGOFF = 4634
 - EVENT_SESSION_DISCONNECTED = 4779
 - EVENT_LOGOFF_INITIATED = 4647
-
-## Querying Neo4J data
-
-	MATCH(n) RETURN(n)
-
-## Removing Neo4J data
-
-	MATCH(n)-[r]-(m) DELETE n,r,m
-	MATCH(n) DELETE n
-
-
