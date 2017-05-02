@@ -4,6 +4,7 @@
 #         https://github.com/thiber-org/userline
 #
 
+import hashlib
 from neo4j.v1 import GraphDatabase, basic_auth
 from lib.utils import update_relations
 from lib.config import CSV_FIELDS
@@ -27,6 +28,9 @@ class Neo4J():
 		# users
 		self.sessions = {}
 
+	def __genid_dict(self,value):
+		return {'id': "_{}".format(hashlib.sha1("{}".format(value).encode('utf-8')).hexdigest()) , 'name': value }
+
 	def finish(self):
 		try:
 			self.neo.close()
@@ -43,136 +47,136 @@ class Neo4J():
 			tmp = "{}, {}: {}".format(tmp,i.replace('.','_'),val)
 		return "{{{}}}".format(tmp[1:])
 
+
 	def __add_domain(self,domain):
-		if domain == 'N/A' or domain == 'MicrosoftAccount' or domain == '-':
+		if domain['name'] in ['N/A','MicrosoftAccount','-']:
 			return None
+
 		prev = None
-		domain = domain.upper()
-		for dom in domain.split('.')[::-1]:
+		for dom in domain['name'].split('.')[::-1]:
 			orig = dom
-			dom = dom.replace(' ','_').replace('-','_')
+			dom = self.__genid_dict(dom)
 
 			if prev is None:
-				self.neo.run("MERGE ({}:Domain {{name: '{}',label:'{}'}})".format(dom,dom,orig))
-				prev = dom
+				self.neo.run("MERGE ({}:Domain {{name: '{}',label:'{}'}})".format(dom['id'],dom['name'],orig))
+				prev = dom['name']
 			else:
-				self.neo.run("MERGE ({}:Domain {{name: '{}.{}',label:'{}'}})".format(dom,dom,prev,orig))
-				self.neo.run("MATCH (subdomain:Domain {{name:'{}.{}'}}),(domain:Domain {{name:'{}'}}) MERGE (subdomain)-[:BELONGS_TO]->(domain)".format(dom,prev,prev))
-				prev = "{}.{}".format(dom,prev)
-		return domain.replace(' ','_').replace('-','_')
+				self.neo.run("MERGE ({}:Domain {{name: '{}.{}',label:'{}'}})".format(dom['id'],dom['name'],prev,orig))
+				self.neo.run("MATCH (subdomain:Domain {{name:'{}.{}'}}),(domain:Domain {{name:'{}'}}) MERGE (subdomain)-[:BELONGS_TO]->(domain)".format(dom['name'],prev,prev))
+				prev = "{}.{}".format(dom['name'],prev)
 
 
 	def __add_computer(self,fqdn,ip=None):
-		fqdn = fqdn.upper().replace('-','_')
-		data = fqdn.split('.')
-		name = data[0]
+		data = fqdn['name'].split('.')
+		name = self.__genid_dict(data[0])
 
 		if ip is None:
-			query = "MERGE ({}:Computer {{name: '{}',label:'{}'}})".format(name,fqdn,name)
+			query = "MERGE ({}:Computer {{name: '{}',label:'{}'}})".format(name['id'],fqdn['name'],name['name'])
 		else:
-			fqdn = "{}({})".format(fqdn,ip)
-			query = "MERGE ({}:Computer {{name: '{}',label:'{}',ip: '{}'}})".format(name,fqdn,name,ip)
+			fqdn = self.__genid_dict("{}({})".format(fqdn['name'],ip['name']))
+			query = "MERGE ({}:Computer {{name: '{}',label:'{}',ip: '{}'}})".format(name['id'],fqdn['name'],name['name'],ip['name'])
 
 		self.neo.run(query)
 
 		if len(data[1:]) > 0:
-			dom = '.'.join(data[1:])
+			dom = self.__genid_dict('.'.join(data[1:]))
 			self.__add_domain(dom)
-			self.neo.run("MATCH (computer:Computer {{name:'{}'}}),(domain:Domain {{name:'{}'}}) MERGE (computer)-[:MEMBER_OF]->(domain)".format(fqdn,dom))
+			self.neo.run("MATCH (computer:Computer {{name:'{}'}}),(domain:Domain {{name:'{}'}}) MERGE (computer)-[:MEMBER_OF]->(domain)".format(fqdn['name'],dom['name']))
+
 		return fqdn
 
 
 	def __add_source_ip(self,ip):
-		srcip = "_{}".format(ip.replace('.','_').replace(':','_'))
-		self.neo.run("MERGE ({}:Computer {{name:'{}',label:'{}'}})".format(srcip,ip,ip))
+		self.neo.run("MERGE ({}:Computer {{name:'{}',label:'{}'}})".format(ip['id'],ip['name'],ip['name']))
 		return ip
 
 
 	def __add_user(self,user):
-		if user == 'N/A':
+		if user['name'] == 'N/A':
 			return None
-		username = user.upper()
-		usr = username.replace(' ','_').replace('@','').replace('-','_').replace('.','_')
-		self.neo.run("MERGE ({}:User {{name: '{}',label:'{}'}})".format(usr,username,user))
-		return username
+		self.neo.run("MERGE ({}:User {{name: '{}',label:'{}'}})".format(user['id'],user['name'],user['name']))
 
 
 	def add_sequence(self,event,fullinfo,uniquelogon):
 		# add logon source
+		username = self.__genid_dict(event['logon.username'])
+		computer = self.__genid_dict(event['logon.computer'])
+		domain = self.__genid_dict(event['logon.domain'])
+		srccomputer = self.__genid_dict(event['logon.srccomputer'])
+		srcip = self.__genid_dict(event['logon.srcip'])
+
 		source = None
 		if len(event['logon.srcip']) > 0:
 			orig = event['logon.srcip']
-			if orig in ["127.0.0.1","LOCAL"]:
-				source = event['logon.computer']
-				self.__add_computer(source)
+			if orig in ["127.0.0.1","LOCAL","::1"]:
+				source = self.__add_computer(computer)
 			elif event['logon.srccomputer'] != 'N/A':
-				source = self.__add_computer(event['logon.srccomputer'],event['logon.srcip'])
+				source = self.__add_computer(srccomputer,srcip)
 			else:
-				source = self.__add_source_ip(orig)
+				source = self.__add_source_ip(srcip)
 
+		self.__add_user(username)
+		self.__add_computer(computer)
+		self.__add_domain(domain)
 
-		username = self.__add_user(event['logon.username'])
-		computer = self.__add_computer(event['logon.computer'])
-		domain = self.__add_domain(event['logon.domain'])
-
-		if username is not None:
+		if username['name'] != 'N/A':
 			self.sessions[event['logon.id']] = username
 
 		# check user-computer relation
 		exists = False
 		if uniquelogon is True:
 			try:
-				aux = self.rels['dstrelations'][username][computer]
+				aux = self.rels['dstrelations'][username['id']][computer['id']]
 				exists = True
 			except:
 				exists = False
-				self.rels['dstrelations'] = update_relations(self.rels['dstrelations'],{username:{computer: 1}})
+				self.rels['dstrelations'] = update_relations(self.rels['dstrelations'],{username['id']:{computer['id']: 1}})
 
 		if exists is False:
 			if fullinfo is True:
 				logondata = self.__get_logon_data(event)
-				query = "MATCH (user:User {{name:'{}'}}),(dest:Computer {{name:'{}'}}) MERGE (user)-[:LOGON_TO {}]->(dest)".format(username,computer,logondata)
+				query = "MATCH (user:User {{name:'{}'}}),(dest:Computer {{name:'{}'}}) MERGE (user)-[:LOGON_TO {}]->(dest)".format(username['name'],computer['name'],logondata)
 			else:
-				query = "MATCH (user:User {{name:'{}'}}),(dest:Computer {{name:'{}'}}) MERGE (user)-[:LOGON_TO {{date:'{}', type: '{}', logonid: '{}', srcid: '{}', src:'{}'}}]->(dest)".format(username,computer,event['logon.datetime'],event['logon.type'],event['logon.id'],event['logon.meta.id'],event['logon.srcip'])
+				query = "MATCH (user:User {{name:'{}'}}),(dest:Computer {{name:'{}'}}) MERGE (user)-[:LOGON_TO {{date:'{}', type: '{}', logonid: '{}', srcid: '{}', src:'{}'}}]->(dest)".format(username['name'],computer['name'],event['logon.datetime'],event['logon.type'],event['logon.id'],event['logon.meta.id'],event['logon.srcip'])
 
 			self.neo.run(query)
 
 		# check user-domain relation
 		try:
-			aux = self.rels['domrelations'][username][domain]
+			aux = self.rels['domrelations'][username['id']][domain['id']]
 			exists = True
 		except:
 			exists = False
-			self.rels['domrelations'] = update_relations(self.rels['domrelations'],{username:{domain:1}})
-			self.neo.run("MATCH (user:User {{name:'{}'}}),(domain:Domain {{name:'{}'}}) MERGE (user)-[:MEMBER_OF]->(domain)".format(username,domain))
+			self.rels['domrelations'] = update_relations(self.rels['domrelations'],{username['id']:{domain['id']:1}})
+			self.neo.run("MATCH (user:User {{name:'{}'}}),(domain:Domain {{name:'{}'}}) MERGE (user)-[:MEMBER_OF]->(domain)".format(username['name'],domain['name']))
 
 		# check src-dst relation
 		try:
-			aux = self.rels['srcdst'][source][computer]
+			aux = self.rels['srcdst'][source['id']][computer['id']]
 			exists = True
 		except:
 			exists = False
-			self.rels['srcdst'] = update_relations(self.rels['srcdst'],{source:{computer:1}})
-			self.neo.run("MATCH (src:Computer {{name:'{}'}}),(dst:Computer {{name:'{}'}}) MERGE (src)-[:ACCESS_TO]->(dst)".format(source,computer))
+			self.rels['srcdst'] = update_relations(self.rels['srcdst'],{source['id']:{computer['id']:1}})
+			self.neo.run("MATCH (src:Computer {{name:'{}'}}),(dst:Computer {{name:'{}'}}) MERGE (src)-[:ACCESS_TO]->(dst)".format(source['name'],computer['id']))
 
 		# check user-src relation
 		if source is not None:
 			try:
-				aux = self.rels['srcrelations'][username][source]
+				aux = self.rels['srcrelations'][username['id']][source['id']]
 				exists = True
 			except:
 				exists = False
 			if exists is False:
-				self.rels['srcrelations'] = update_relations(self.rels['srcrelations'],{username: {source:1}})
-				self.neo.run("MATCH (src:Computer {{name:'{}'}}),(user:User {{name:'{}'}}) MERGE (user)-[:AUTH_FROM]->(src)".format(source,username))
+				self.rels['srcrelations'] = update_relations(self.rels['srcrelations'],{username['id']: {source['id']:1}})
+				self.neo.run("MATCH (src:Computer {{name:'{}'}}),(user:User {{name:'{}'}}) MERGE (user)-[:AUTH_FROM]->(src)".format(source['name'],username['id']))
 
 		# from session (TODO: Only if the source session has been processed. Fixit)
 		if event['logon.srcid'] != 'N/A' and event['logon.srcid'] in self.sessions.keys():
 			try:
-				aux = self.rels['srclogin'][username][event['logon.srcid']]
+				aux = self.rels['srclogin'][username['id']][event['logon.srcid']]
 				exists = True
 			except:
 				exists = False
 			if exists is False:
-				self.rels['srcrelations'] = update_relations(self.rels['srclogin'],{username: {event['logon.srcid']:1}})
-				self.neo.run("MATCH (dst:User {{name:'{}'}}),(src:User {{name:'{}'}}) MERGE (dst)-[:FROM_SESSION {{logonid:'{}'}}]->(src)".format(username,self.sessions[event['logon.srcid']],event['logon.srcid']))
+				self.rels['srcrelations'] = update_relations(self.rels['srclogin'],{username['id']: {event['logon.srcid']:1}})
+				self.neo.run("MATCH (dst:User {{name:'{}'}}),(src:User {{name:'{}'}}) MERGE (dst)-[:FROM_SESSION {{logonid:'{}'}}]->(src)".format(username['name'],self.sessions[event['logon.srcid']],event['logon.srcid']))
