@@ -45,15 +45,6 @@ def draw_progress_bar(percent, start, prevlen=0,barLen=20):
 
 	return curlen
 
-def update_relations(rel,new):
-	for k, v in new.items():
-		if isinstance(v, collections.Mapping):
-			r = update_relations(rel.get(k, {}), v)
-			rel[k] = r
-		else:
-			rel[k] = new[k]
-	return rel
-
 
 def get_dsl_logoff_query(screen):
 	q = None
