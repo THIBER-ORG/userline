@@ -20,6 +20,7 @@ from elasticsearch_dsl.connections import connections
 from lib import config,defaults,utils
 from lib.output.csv import CSV
 from lib.output.neo4j import Neo4J
+from lib.output.graphviz import Graphviz
 
 
 def main():
@@ -61,6 +62,7 @@ def main():
 	output = parser.add_argument_group('Output')
 	output.add_argument("-c","--csv-output",help="CSV Output file",type=argparse.FileType('w'),metavar="PATH")
 	output.add_argument("-n","--neo4j",help="Neo4j bolt with auth (format: bolt://user:pass@host:port)",metavar="BOLT")
+	output.add_argument("-g","--graphviz",help="Graphviz .dot file",type=argparse.FileType('w'),metavar="PATH")
 
 	csvout = parser.add_argument_group('CSV options')
 	csvout.add_argument("-F","--disable-timeframe",help="Do not create timeframe entries",action='store_true',default=False)
@@ -139,8 +141,8 @@ def main():
 		return
 
 	# we need an output format
-	if args.csv_output is None and args.neo4j is None:
-		log.critical("This option requires CSV/Neo4J output")
+	if args.csv_output is None and args.neo4j is None and args.graphviz is None:
+		log.critical("This option requires CSV/Neo4J/Graphviz output")
 		return
 
 	csv = None
@@ -152,6 +154,10 @@ def main():
 	neo = None
 	if args.neo4j is not None:
 		neo = Neo4J(args.neo4j)
+
+	graph = None
+	if args.graphviz is not None:
+		graph = Graphviz(args.graphviz)
 
 	log.info("Building query")
 	# Look for first required events
@@ -236,6 +242,8 @@ def main():
 				csv.add_sequence(event)
 			if neo is not None:
 				neo.add_sequence(event,args.neo4j_full_info,args.unique_logon_rels)
+			if graph is not None:
+				graph.add_sequence(event,args.neo4j_full_info,args.unique_logon_rels)
 			log.debug("Event stored")
 
 		progress += 1
@@ -259,6 +267,8 @@ def main():
 
 	if neo is not None:
 		neo.finish()
+	if graph is not None:
+		graph.finish()
 
 	return
 

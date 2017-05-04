@@ -5,11 +5,11 @@
 #
 
 import hashlib
-from neo4j.v1 import GraphDatabase, basic_auth
-from lib.config import CSV_FIELDS
+import graphviz as gv
 from lib.cache import Cache
 
-class Neo4J():
+class Graphviz():
+
 	DEST_RELS = 'sequence'
 	DOM_RELS = 'domain'
 	SRC_RELS = 'source'
@@ -20,12 +20,9 @@ class Neo4J():
 	DOM_LIST = 'domains'
 	SRV_LIST = 'servers'
 	SRVDOM_RELS = 'serverbelongsto'
+	
 
-	def __init__(self,url):
-		proto = "{}/".format('/'.join(url.split('/')[:2]))
-		userpwd = url.split('/')[2].split('@')[0]
-		uri = url.split('@')[1]
-		data = ["{}{}".format(proto,uri),userpwd.split(':')[0], userpwd.split(':')[1]]
+	def __init__(self,output):
 		# TODO: Store this relations in a redis-like cache
 		self.cache = Cache()
 		self.cache.create_cache(self.DEST_RELS)
@@ -38,20 +35,13 @@ class Neo4J():
 		self.cache.create_cache(self.DOM_LIST)
 		self.cache.create_cache(self.SRV_LIST)
 		self.cache.create_cache(self.SRVDOM_RELS)
-
-		# setup neo4j
-		self.drv = GraphDatabase.driver(data[0], auth=basic_auth(data[1], data[2]))
-		self.neo = self.drv.session()
-		self.neo.run("CREATE INDEX ON :User(name)")
-		self.neo.run("CREATE INDEX ON :Computer(name)")
-		self.neo.run("CREATE INDEX ON :Domain(name)")
+		self.output = output
+		self.graph = gv.Digraph()
 
 
 	def finish(self):
-		try:
-			self.neo.close()
-		except:
-			pass
+		self.output.write(self.graph.source)
+		self.output.close()
 
 
 	def __genid_dict(self,value):
@@ -73,15 +63,13 @@ class Neo4J():
 			tmp = "{}, {}: {}".format(tmp,i.replace('.','_'),val)
 		return "{{{}}}".format(tmp[1:])
 
-
-	def __create_node(self,key,node,query):
+	def __create_node(self,key,node,label):
 		ret = False
 		if self.cache.get_key(key,node['id']) is None:
-			self.neo.run(query)
+			self.graph.node(node['id'],label=label)
 			self.cache.set_key(key,node['id'],node['name'])
 			ret = True
 		return ret
-
 
 	def __add_domain(self,domain):
 		if domain['name'] in ['N/A','MicrosoftAccount','-']:
@@ -92,14 +80,14 @@ class Neo4J():
 			dom = self.__genid_dict(dom)
 
 			if prev is None:
-				self.__create_node(self.DOM_LIST,dom,"MERGE ({}:Domain {{name: '{}',label:'{}'}})".format(dom['id'],dom['name'],dom['name']))
+				self.__create_node(self.DOM_LIST,dom,dom['name'])
 				prev = dom
 			else:
 				new = self.__genid_dict("{}.{}".format(dom['name'],prev['name']))
-				self.__create_node(self.DOM_LIST,new,"MERGE ({}:Domain {{name: '{}',label:'{}'}})".format(new['id'],new['name'],new['name']))
+				self.__create_node(self.DOM_LIST,new,new['name'])
 				if self.cache.get_key(self.DOM_LIST,"{}.{}".format(new['id'],prev['id'])) is None:
 					self.cache.set_key(self.DOM_LIST,"{}.{}".format(new['id'],prev['id']),True)
-					self.neo.run("MATCH (subdomain:Domain {{name:'{}'}}),(domain:Domain {{name:'{}'}}) MERGE (subdomain)-[:BELONGS_TO]->(domain)".format(new['name'],prev['name']))
+					self.graph.edge(new['id'],prev['id'],label='BELONGS_TO')
 				prev = new
 
 
@@ -108,30 +96,30 @@ class Neo4J():
 		name = self.__genid_dict(data[0])
 
 		if ip is None:
-			self.__create_node(self.SRV_LIST,fqdn,"MERGE ({}:Computer {{name: '{}',label:'{}'}})".format(name['id'],fqdn['name'],name['name']))
+			self.__create_node(self.SRV_LIST,fqdn,fqdn['name'])
 		else:
 			fqdn = self.__genid_dict("{}({})".format(fqdn['name'],ip['name']))
-			self.__create_node(self.SRV_LIST,fqdn,"MERGE ({}:Computer {{name: '{}',label:'{}',ip: '{}'}})".format(name['id'],fqdn['name'],name['name'],ip['name']))
+			self.__create_node(self.SRV_LIST,fqdn,fqdn['name'])
 
 		if len(data[1:]) > 0:
 			dom = self.__genid_dict('.'.join(data[1:]))
 			self.__add_domain(dom)
 			if self.cache.get_key(self.SRVDOM_RELS,"{}@{}".format(fqdn['id'],dom['id'])) is None:
 				self.cache.set_key(self.SRVDOM_RELS,"{}@{}".format(fqdn['id'],dom['id']),True)
-				self.neo.run("MATCH (computer:Computer {{name:'{}'}}),(domain:Domain {{name:'{}'}}) MERGE (computer)-[:MEMBER_OF]->(domain)".format(fqdn['name'],dom['name']))
+				self.graph.edge(fqdn['id'],dom['id'],label='MEMBER_OF')
 
 		return fqdn
 
 
 	def __add_source_ip(self,ip):
-		self.__create_node(self.SRV_LIST,ip,"MERGE ({}:Computer {{name:'{}',label:'{}'}})".format(ip['id'],ip['name'],ip['name']))
+		self.__create_node(self.SRV_LIST,ip,ip['name'])
 		return ip
 
 
 	def __add_user(self,user):
 		if user['name'] == 'N/A':
 			return None
-		self.__create_node(self.USER_LIST,user,"MERGE ({}:User {{name: '{}',label:'{}'}})".format(user['id'],user['name'],user['name']))
+		self.__create_node(self.USER_LIST,user,user['name'])
 
 
 	def add_sequence(self,event,fullinfo,uniquelogon):
@@ -172,28 +160,27 @@ class Neo4J():
 				query = "MATCH (user:User {{name:'{}'}}),(dest:Computer {{name:'{}'}}) MERGE (user)-[:LOGON_TO {}]->(dest)".format(username['name'],computer['name'],logondata)
 			else:
 				query = "MATCH (user:User {{name:'{}'}}),(dest:Computer {{name:'{}'}}) MERGE (user)-[:LOGON_TO {{date:'{}', type: '{}', logonid: '{}', srcid: '{}', src:'{}'}}]->(dest)".format(username['name'],computer['name'],event['logon.datetime'],event['logon.type'],event['logon.id'],event['logon.meta.id'],event['logon.srcip'])
-
-			self.neo.run(query)
+			self.graph.edge(username['id'],computer['id'],label='LOGON_TO')
 
 		# check user-domain relation
 		exists = self.cache.get_key(self.DOM_RELS,self.__gen_key(username['id'],domain['id']))
 		if exists is None:
 			self.cache.set_key(self.DOM_RELS,self.__gen_key(username['id'],domain['id']),True)
-			self.neo.run("MATCH (user:User {{name:'{}'}}),(domain:Domain {{name:'{}'}}) MERGE (user)-[:MEMBER_OF]->(domain)".format(username['name'],domain['name']))
+			self.graph.edge(username['id'],domain['id'],label='MEMBER_OF')
 
 		# check src-dst relation
 		if source is not None:
 			exists = self.cache.get_key(self.SRCDST_RELS,self.__gen_key(source['id'],computer['id']))
 			if exists is None:
 				self.cache.set_key(self.SRCDST_RELS,self.__gen_key(source['id'],computer['id']),True)
-				self.neo.run("MATCH (src:Computer {{name:'{}'}}),(dst:Computer {{name:'{}'}}) MERGE (src)-[:ACCESS_TO]->(dst)".format(source['name'],computer['id']))
+				self.graph.edge(source['id'],computer['id'],label='ACCESS_TO')
 
 		# check user-src relation
 		if source is not None:
 			exists = self.cache.get_key(self.SRC_RELS,self.__gen_key(username['id'],source['id']))
 			if exists is None:
 				self.cache.set_key(self.SRC_RELS,self.__gen_key(username['id'],source['id']),True)
-				self.neo.run("MATCH (src:Computer {{name:'{}'}}),(user:User {{name:'{}'}}) MERGE (user)-[:AUTH_FROM]->(src)".format(source['name'],username['id']))
+				self.graph.edge(source['id'],username['id'],label='AUTH_FROM')
 
 		# from session (TODO: Only if the source session has been processed. Fixit)
 		if event['logon.srcid'] != 'N/A':
@@ -202,4 +189,4 @@ class Neo4J():
 				exists = self.cache.get_key(self.SRCLOGIN_RELS,self.__gen_key(username['id'],event['logon.srcid']))
 				if exists is not None:
 					self.cache.set_key(self.SRCLOGIN_RELS,self.__gen_key(username['id'],event['logon.srcid']),True)
-					self.neo.run("MATCH (dst:User {{name:'{}'}}),(src:User {{name:'{}'}}) MERGE (dst)-[:FROM_SESSION {{logonid:'{}'}}]->(src)".format(username['name'],self.sessions[event['logon.srcid']],event['logon.srcid']))
+					self.graph.edge(username['id'],prev['id'],label='FROM_SESSION')
