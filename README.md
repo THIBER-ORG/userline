@@ -8,6 +8,7 @@ It has three output modes:
 1. Standard output
 1. CSV file
 1. Neo4J graph
+1. Graphviz dot file
 
 # Content
 1. [Preparation](#preparation)
@@ -17,9 +18,13 @@ It has three output modes:
 1. [EVTx Analisys](#evtx-analisys)
 1. [Indexing](#indexing)
 1. [Using the tool](#using-the-tool)
+1. [CSV Output](#csv-output)
 1. [Neo4J Export](#neo4j-export)
     1. [Querying Neo4J data](#querying-neo4j-data)
     1. [Removing Neo4J data](#removing-neo4j-data)
+1. [Graphviz dot file output](#graphviz-dot-file-output)
+    1. [Image generation from graph .dot file](#image-generation-from-graph-.dot-file)
+    1. [Import graph into Gephi](#import-graph-into-gephi)
 1. [SQLite import](#sqlite-import)
 1. [Processed events](#processed-events)
 
@@ -60,9 +65,9 @@ Example:
 	        https://github.com/thiber-org/userline
 	
 	usage: userline.py [-h] [-H ESHOSTS] [-S POOL_SIZE] -i INDEX
-	                   (-L | -E | -l | -w DATE) [-c PATH] [-n BOLT] [-F] [-f] [-s]
-	                   [-t MIN_DATE] [-T MAX_DATE] [-p PATTERN] [-I] [-k] [-v]
-	                   [-m DATETIME]
+	                   (-L | -E | -l | -w DATE) [-c PATH] [-n BOLT] [-g PATH] [-F]
+	                   [-f] [-s] [-t MIN_DATE] [-T MAX_DATE] [-p PATTERN] [-I]
+	                   [-k] [-v] [-m DATETIME]
 	
 	optional arguments:
 	  -h, --help            show this help message and exit
@@ -89,6 +94,8 @@ Example:
 	  -n BOLT, --neo4j BOLT
 	                        Neo4j bolt with auth (format:
 	                        bolt://user:pass@host:port)
+	  -g PATH, --graphviz PATH
+	                        Graphviz .dot file
 	
 	CSV options:
 	  -F, --disable-timeframe
@@ -102,9 +109,9 @@ Example:
 	
 	Optional filtering arguments:
 	  -t MIN_DATE, --min-date MIN_DATE
-	                        Searches since specified date (default: 2016-05-01)
+	                        Searches since specified date (default: 2016-05-04)
 	  -T MAX_DATE, --max-date MAX_DATE
-	                        Searches up to specified date (default: 2017-05-01)
+	                        Searches up to specified date (default: 2017-05-04)
 	  -p PATTERN, --pattern PATTERN
 	                        Includes pattern in search
 	  -I, --include-local   Includes local services logons (default: Excluded)
@@ -192,6 +199,7 @@ Getting the last event:
 	    "username": "N/A"
 	}
 
+## CSV Output
 Getting logon relations between two dates into a CSV file:
 
 	$ ./userline.py -l -i ir-1329585-events-security-windows -t 2016-11-20T11:00:00 -T 2016-11-21T11:00:00 -c output.csv
@@ -211,7 +219,7 @@ Getting logon relations between two dates into a CSV file:
 	[====================] 100.0% Elapsed: 0m 02s ETA: 0m00s
 	INFO - 44 Logons processed in 0:00:02.051880
 
-# Neo4J Export
+## Neo4J Export
 
 Getting logon relations into Neo4J graph:
 
@@ -233,7 +241,7 @@ Getting logon relations into Neo4J graph:
 	[====================] 100.0% Elapsed: 0m 02s ETA: 0m00s
 	INFO - 44 Logons processed in 0:00:02.051880
 
-## Querying Neo4J data
+### Querying Neo4J data
 
 	MATCH(n) RETURN(n)
 	
@@ -241,11 +249,42 @@ Query the results using Neo4J CQL
 
 ![](https://raw.githubusercontent.com/thiber-org/userline/master/img/result.png)
 
-## Removing Neo4J data
+### Removing Neo4J data
 
 	MATCH(n)-[r]-(m) DELETE n,r,m
 	MATCH(n) DELETE n
 	
+## Graphviz dot file output
+
+	$ ./userline.py -l -i ir-1329585-events-security-windows -t 2016-11-20T11:00:00 -T 2016-11-21T11:00:00 -g graph.dot
+	
+	 /\ /\  ___  ___ _ __ / /(_)_ __   ___ 
+	/ / \ \/ __|/ _ \ '__/ / | | '_ \ / _ \
+	\ \_/ /\__ \  __/ | / /__| | | | |  __/
+	 \___/ |___/\___|_| \____/_|_| |_|\___|  v0.2.2b
+	
+	Author: Chema Garcia (aka sch3m4)
+	        @sch3m4
+	        https://github.com/thiber-org/userline
+	
+	INFO - Building query
+	INFO - Found 297 events to be processed
+	INFO - Processing events
+	[====================] 100.0% Elapsed: 0m 02s ETA: 0m00s
+	INFO - 44 Logons processed in 0:00:02.051880
+
+### Image generation from graph .dot file
+
+Once you've generated the .dot file, you can generate an image with the graph as follows:
+
+	$ dot -Tpng graph.dot > graph.png
+
+### Import graph into Gephi
+
+Once you've generated the .dot file, you can import the graph into (Gephi)[https://gephi.org/]:
+
+![](https://raw.githubusercontent.com/thiber-org/userline/master/img/gephi.1.png)
+
 ## SQLite Import
 
 Once you've generated the CSV output, you can import the data into a SQLite database and query the data through SQL queries:
