@@ -7,7 +7,7 @@
 # App name
 APP_NAME = 'UserLine'
 # Version
-VERSION = "0.2.2b"
+VERSION = "0.2.3b"
 # Log format
 LOG_FORMAT = '%(levelname)s - %(message)s'
 
