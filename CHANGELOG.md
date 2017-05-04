@@ -1,7 +1,10 @@
 # Change Log
 
-## [v0.2.2b](https://github.com/thiber-org/userline/tree/v0.2.2b) (2017-04-26)
-[Full Changelog](https://github.com/thiber-org/userline/compare/v0.2.1b...v0.2.2b)
+## [v0.2.3b](https://github.com/THIBER-ORG/userline/tree/v0.2.3b) (2017-05-04)
+[Full Changelog](https://github.com/THIBER-ORG/userline/compare/v0.2.2b...v0.2.3b)
+
+## [v0.2.2b](https://github.com/THIBER-ORG/userline/tree/v0.2.2b) (2017-04-26)
+[Full Changelog](https://github.com/THIBER-ORG/userline/compare/v0.2.1b...v0.2.2b)
 
 **Closed issues:**
 
@@ -11,7 +14,7 @@
 
 - added requirements.txt - closes \#2 [\#3](https://github.com/THIBER-ORG/userline/pull/3) ([sch3m4](https://github.com/sch3m4))
 
-## [v0.2.1b](https://github.com/thiber-org/userline/tree/v0.2.1b) (2017-04-17)
+## [v0.2.1b](https://github.com/THIBER-ORG/userline/tree/v0.2.1b) (2017-04-17)
 **Merged pull requests:**
 
 - Merge pull request \#1 from THIBER-ORG/master [\#1](https://github.com/THIBER-ORG/userline/pull/1) ([sch3m4](https://github.com/sch3m4))
