@@ -281,7 +281,7 @@ Once you've generated the .dot file, you can generate an image with the graph as
 
 ### Import graph into Gephi
 
-Once you've generated the .dot file, you can import the graph into (Gephi)[https://gephi.org/]:
+Once you've generated the .dot file, you can import the graph into [Gephi](https://gephi.org/):
 
 ![](https://raw.githubusercontent.com/thiber-org/userline/master/img/gephi.1.png)
 
