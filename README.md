@@ -104,6 +104,8 @@ Example:
 	Neo4J options:
 	  -f, --neo4j-full-info
 	                        Saves full logon/logoff info in Neo4j relations
+	
+	Graph (Neo4J/Graphviz) options:
 	  -s, --unique-logon-rels
 	                        Sets unique logon relations
 	
