@@ -23,7 +23,7 @@ It has three output modes:
     1. [Querying Neo4J data](#querying-neo4j-data)
     1. [Removing Neo4J data](#removing-neo4j-data)
 1. [Graphviz dot file output](#graphviz-dot-file-output)
-    1. [Image generation from graph .dot file](#image-generation-from-graph-.dot-file)
+    1. [Image generation from graph .dot file](#image-generation-from-graph-dot-file)
     1. [Import graph into Gephi](#import-graph-into-gephi)
 1. [SQLite import](#sqlite-import)
 1. [Processed events](#processed-events)
