@@ -69,7 +69,9 @@ def main():
 
 	neoargs = parser.add_argument_group('Neo4J options')
 	neoargs.add_argument("-f","--neo4j-full-info",help="Saves full logon/logoff info in Neo4j relations",action='store_true',default=False)
-	neoargs.add_argument("-s","--unique-logon-rels",help="Sets unique logon relations",action='store_true',default=False)
+
+	graphargs = parser.add_argument_group("Graph (Neo4J/Graphviz) options")
+	graphargs.add_argument("-s","--unique-logon-rels",help="Sets unique logon relations",action='store_true',default=False)
 
 	optional = parser.add_argument_group('Optional filtering arguments')
 	optional.add_argument("-t","--min-date",help="Searches since specified date (default: {})".format(defaults.MIN_DATE),default=defaults.MIN_DATE)
