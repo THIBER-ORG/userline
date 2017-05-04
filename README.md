@@ -1,6 +1,6 @@
 # UserLine
 
-This tool automates the process of creating logon relations from MS Windows Security Events by showing a graphical realtion among users domains, source and destination logons as well as session duration.
+This tool automates the process of creating logon relations from MS Windows Security Events by showing a graphical relation among users domains, source and destination logons as well as session duration.
 
 ![](https://raw.githubusercontent.com/thiber-org/userline/master/img/graph.png)
 
