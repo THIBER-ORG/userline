@@ -4,7 +4,7 @@ This tool automates the process of creating logon relations from MS Windows Secu
 
 ![](https://raw.githubusercontent.com/thiber-org/userline/master/img/graph.png)
 
-It has three output modes:
+It has four output modes:
 1. Standard output
 1. CSV file
 1. Neo4J graph
