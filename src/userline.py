@@ -54,6 +54,7 @@ def main():
 
 	aux = parser.add_argument_group('Actions')
 	action = aux.add_mutually_exclusive_group(required=True)
+	action.add_argument("-x","--inspect",help="Gets some statistics about the indexed data",action='store_true',default=False)
 	action.add_argument("-L","--last-shutdown",help="Gets last shutdown data",action='store_true',default=False)
 	action.add_argument("-E","--last-event",help="Gets last event data",action='store_true',default=False)
 	action.add_argument("-l","--logons",help="Shows user logon activity",action='store_true',default=False)
@@ -86,7 +87,7 @@ def main():
 
 	args = parser.parse_args()
 
-	if args.last_event is False and args.logons is False and args.who_was_at is None and args.last_shutdown is False:
+	if args.last_event is False and args.logons is False and args.who_was_at is None and args.last_shutdown is False and args.inspect is False:
 		log.critical("You need to specify at least one action argument")
 		return
 
@@ -109,15 +110,27 @@ def main():
 	connections.create_connection(hosts=args.eshosts.split(','),maxsize=args.pool_size)
 	conn = connections.get_connection()
 
+	# shows some statistics about the indexed data
+	if args.inspect is True:
+		stats = utils.get_statistics(args.index,args.pattern)
+		log.info("Statistics:")
+		log.info("\t- Computers:      {}".format(stats['computers']))
+		log.info("\t- Src usernames:  {}".format(stats['srcuser']))
+		log.info("\t- Dst usernames:  {}".format(stats['dstuser']))
+		log.info("\t- Dst computers:  {} by name".format(stats['dstsrvname']))
+		log.info("\t- Dst computers:  {} by IP".format(stats['dstsrvip']))
+		log.info("\t- Total events:   {}".format(stats['total']))
+		return
+
 	# shows last shutdown
 	if args.last_shutdown is True:
-		aux = utils.get_last_shutdown(args.index,maxdate)
+		aux = utils.get_last_shutdown(args.index,maxdate,args.pattern)
 		if aux is not None:
 			log.info("Last shutdown:")
 			for k in aux.keys():
 				item = aux[k]
 				evt = utils.build_event_from_source(item)
-				lastraw = utils.get_last_event(args.index,evt['computer'])
+				lastraw = utils.get_last_event(args.index,evt['computer'],maxdate)
 				lastevt = utils.build_event_from_source(lastraw)
 				uptime = timedelta(microseconds=(lastevt['timestamp'] - evt['timestamp'])*10**3)
 				log.info("Computer: {}".format(evt['computer']))
@@ -131,7 +144,7 @@ def main():
 
 	# shows last stored event
 	if args.last_event is True:
-		aux = utils.get_last_event(args.index)
+		aux = utils.get_last_event(args.index,computer=None,maxdate=maxdate,pattern=args.pattern)
 		if aux is not None:
 			log.info("Last event:")
 			for k in aux.keys():

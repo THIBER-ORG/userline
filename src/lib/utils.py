@@ -10,7 +10,7 @@ import hashlib
 import collections
 
 from dateutil import parser as dateparser
-from elasticsearch_dsl import Search,Q
+from elasticsearch_dsl import Search,Q,A
 from elasticsearch_dsl.connections import connections
 from elasticsearch_dsl.response.hit import Hit
 
@@ -284,7 +284,7 @@ def build_logon_sequence(duration,login,logout=None):
 	return ret
 
 
-def get_last_shutdown(index,maxtstamp):
+def get_last_shutdown(index,maxtstamp,pattern):
 	"""
 	Look for the last shutdown event
 	"""
@@ -295,6 +295,9 @@ def get_last_shutdown(index,maxtstamp):
 		Q('match',data_type='windows:evtx:record') , \
 		Q('match',event_identifier=config.EVENT_SHUTDOWN)
 	]
+
+	if pattern:
+		q.append(Q('query_string',query=pattern,analyze_wildcard=True))
 
 	s = Search(using=conn, index=index).query(Q('bool',must=q)).filter('range',datetime={'lte':maxtstamp}).sort('-datetime')[0:0]
 	s.aggs.bucket('computer','terms',field='computer_name.keyword').bucket('shutdown','top_hits',size=1)
@@ -309,7 +312,7 @@ def get_last_shutdown(index,maxtstamp):
 
 	return ret
 
-def get_last_event(index,computer=None):
+def get_last_event(index,computer=None,maxdate=None,pattern=None):
 	conn = connections.get_connection()
 	q = [ \
 		Q('match',data_type='windows:evtx:record')
@@ -318,12 +321,19 @@ def get_last_event(index,computer=None):
 	if computer is not None:
 		q.append(Q('match',computer_name=computer))
 
-	s = Search(using=conn, index=index).query(Q('bool',must=q)).sort('-datetime')
+	if pattern:
+		q.append(Q('query_string',query=pattern,analyze_wildcard=True))
+
+	if maxdate:
+		s = Search(using=conn, index=index).query(Q('bool',must=q)).filter('range',datetime={'lte': maxdate}).sort('-datetime')
+	else:
+		s = Search(using=conn, index=index).query(Q('bool',must=q)).sort('-datetime')
 
 	if computer is None:
 		s = s[0:0]
 		s.aggs.bucket('computer','terms',field='computer_name.keyword').bucket('last','top_hits',size=1)
 
+	print(s.json())
 	res = s.execute()
 
 	if computer is None:
@@ -340,3 +350,35 @@ def get_last_event(index,computer=None):
 			evt = None
 
 	return evt
+
+def get_statistics(index,pattern=None):
+	conn = connections.get_connection()
+	stats = {}
+	fields = {
+			'computer_name.keyword':'computers',
+			'strings_parsed.source_user_name.keyword': 'srcuser',
+			'strings_parsed.target_user_name.keyword': 'dstuser',
+			'strings_parsed.target_machine_name.keyword': 'dstsrvname',
+			'strings_parsed.target_machine_ip.keyword': 'dstsrvip',
+		}
+	scheme = {
+			"size" : 0,
+			"aggs" : {
+			"count" : {
+				"cardinality" : {
+					"field" : None
+					}
+				}
+			}
+		}
+
+	s = Search(using=conn,index=index)
+	for f in fields.keys():
+		s.aggs.bucket(fields[f],A('cardinality',field=f))
+	resp = s.execute()
+	res = resp.aggregations.to_dict()
+	for agg in res.keys():
+		stats[agg] = res[agg]['value']
+
+	stats['total'] = resp['hits']['total']
+	return stats
