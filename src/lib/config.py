@@ -7,9 +7,11 @@
 # App name
 APP_NAME = 'UserLine'
 # Version
-VERSION = "0.2.3b"
+VERSION = "0.2.4b"
 # Log format
 LOG_FORMAT = '%(levelname)s - %(message)s'
+# JSON indent
+JSON_INDENT = 4
 
 # Logon event types
 LOGON_TYPE_INTERACTIVE = 2

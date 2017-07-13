@@ -4,9 +4,10 @@ This tool automates the process of creating logon relations from MS Windows Secu
 
 ![](https://raw.githubusercontent.com/thiber-org/userline/master/img/graph.png)
 
-It has four output modes:
+It has five output modes:
 1. Standard output
 1. CSV file
+1. JSON file
 1. Neo4J graph
 1. Graphviz dot file
 
@@ -19,6 +20,7 @@ It has four output modes:
 1. [Indexing](#indexing)
 1. [Using the tool](#using-the-tool)
 1. [CSV Output](#csv-output)
+1. [JSON Output](#json-output)
 1. [Neo4J Export](#neo4j-export)
     1. [Querying Neo4J data](#querying-neo4j-data)
     1. [Removing Neo4J data](#removing-neo4j-data)
@@ -58,7 +60,7 @@ Example:
 	 /\ /\  ___  ___ _ __ / /(_)_ __   ___ 
 	/ / \ \/ __|/ _ \ '__/ / | | '_ \ / _ \
 	\ \_/ /\__ \  __/ | / /__| | | | |  __/
-	 \___/ |___/\___|_| \____/_|_| |_|\___|  v0.2.3b
+	 \___/ |___/\___|_| \____/_|_| |_|\___|  v0.2.4b
 	
 	Author: Chema Garcia (aka sch3m4)
 	        @sch3m4
@@ -91,6 +93,8 @@ Example:
 	Output:
 	  -c PATH, --csv-output PATH
 	                        CSV Output file
+	  -j PATH, --json-output PATH
+	                        JSON Output file
 	  -n BOLT, --neo4j BOLT
 	                        Neo4j bolt with auth (format:
 	                        bolt://user:pass@host:port)
@@ -155,7 +159,7 @@ Getting the last shutdown event:
 	 /\ /\  ___  ___ _ __ / /(_)_ __   ___ 
 	/ / \ \/ __|/ _ \ '__/ / | | '_ \ / _ \
 	\ \_/ /\__ \  __/ | / /__| | | | |  __/
-	 \___/ |___/\___|_| \____/_|_| |_|\___|  v0.2.3b
+	 \___/ |___/\___|_| \____/_|_| |_|\___|  v0.2.4b
 	
 	Author: Chema Garcia (aka sch3m4)
 	        @sch3m4
@@ -175,7 +179,7 @@ Getting the last event:
 	 /\ /\  ___  ___ _ __ / /(_)_ __   ___ 
 	/ / \ \/ __|/ _ \ '__/ / | | '_ \ / _ \
 	\ \_/ /\__ \  __/ | / /__| | | | |  __/
-	 \___/ |___/\___|_| \____/_|_| |_|\___|  v0.2.3b
+	 \___/ |___/\___|_| \____/_|_| |_|\___|  v0.2.4b
 	
 	Author: Chema Garcia (aka sch3m4)
 	        @sch3m4
@@ -209,7 +213,27 @@ Getting logon relations between two dates into a CSV file:
 	 /\ /\  ___  ___ _ __ / /(_)_ __   ___ 
 	/ / \ \/ __|/ _ \ '__/ / | | '_ \ / _ \
 	\ \_/ /\__ \  __/ | / /__| | | | |  __/
-	 \___/ |___/\___|_| \____/_|_| |_|\___|  v0.2.3b
+	 \___/ |___/\___|_| \____/_|_| |_|\___|  v0.2.4b
+	
+	Author: Chema Garcia (aka sch3m4)
+	        @sch3m4
+	        https://github.com/thiber-org/userline
+	
+	INFO - Building query
+	INFO - Found 297 events to be processed
+	INFO - Processing events
+	[====================] 100.0% Elapsed: 0m 02s ETA: 0m00s
+	INFO - 44 Logons processed in 0:00:02.051880
+
+## JSON Output
+Getting logon relations between two dates into a CSV file:
+
+	$ ./userline.py -l -i ir-1329585-events-security-windows -t 2016-11-20T11:00:00 -T 2016-11-21T11:00:00 -j output.json
+	
+	 /\ /\  ___  ___ _ __ / /(_)_ __   ___ 
+	/ / \ \/ __|/ _ \ '__/ / | | '_ \ / _ \
+	\ \_/ /\__ \  __/ | / /__| | | | |  __/
+	 \___/ |___/\___|_| \____/_|_| |_|\___|  v0.2.4b
 	
 	Author: Chema Garcia (aka sch3m4)
 	        @sch3m4
@@ -231,7 +255,7 @@ Getting logon relations into Neo4J graph:
 	 /\ /\  ___  ___ _ __ / /(_)_ __   ___ 
 	/ / \ \/ __|/ _ \ '__/ / | | '_ \ / _ \
 	\ \_/ /\__ \  __/ | / /__| | | | |  __/
-	 \___/ |___/\___|_| \____/_|_| |_|\___|  v0.2.3b
+	 \___/ |___/\___|_| \____/_|_| |_|\___|  v0.2.4b
 	
 	Author: Chema Garcia (aka sch3m4)
 	        @sch3m4
@@ -263,7 +287,7 @@ Query the results using Neo4J CQL
 	 /\ /\  ___  ___ _ __ / /(_)_ __   ___ 
 	/ / \ \/ __|/ _ \ '__/ / | | '_ \ / _ \
 	\ \_/ /\__ \  __/ | / /__| | | | |  __/
-	 \___/ |___/\___|_| \____/_|_| |_|\___|  v0.2.3b
+	 \___/ |___/\___|_| \____/_|_| |_|\___|  v0.2.4b
 	
 	Author: Chema Garcia (aka sch3m4)
 	        @sch3m4

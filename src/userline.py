@@ -62,6 +62,7 @@ def main():
 
 	output = parser.add_argument_group('Output')
 	output.add_argument("-c","--csv-output",help="CSV Output file",type=argparse.FileType('w'),metavar="PATH")
+	output.add_argument("-j","--json-output",help="JSON Output file",type=argparse.FileType('w'),metavar="PATH")
 	output.add_argument("-n","--neo4j",help="Neo4j bolt with auth (format: bolt://user:pass@host:port)",metavar="BOLT")
 	output.add_argument("-g","--graphviz",help="Graphviz .dot file",type=argparse.FileType('w'),metavar="PATH")
 
@@ -156,8 +157,8 @@ def main():
 		return
 
 	# we need an output format
-	if args.csv_output is None and args.neo4j is None and args.graphviz is None:
-		log.critical("This option requires CSV/Neo4J/Graphviz output")
+	if args.csv_output is None and args.neo4j is None and args.graphviz is None and args.json_output is None:
+		log.critical("This option requires CSV/JSON/Neo4J/Graphviz output")
 		return
 
 	csv = None
@@ -165,6 +166,10 @@ def main():
 		csv = CSV(args.csv_output)
 		if args.mark_if_logged_at is None:
 			csv.disable_mark()
+
+	jsonout = None
+	if args.json_output is not None:
+		jsonout = args.json_output
 
 	neo = None
 	if args.neo4j is not None:
@@ -259,6 +264,8 @@ def main():
 				neo.add_sequence(event,args.neo4j_full_info,args.unique_logon_rels)
 			if graph is not None:
 				graph.add_sequence(event,args.neo4j_full_info,args.unique_logon_rels)
+			if jsonout is not None:
+				jsonout.write(json.dumps(event,sort_keys=True, indent=config.JSON_INDENT)+'\n')
 			log.debug("Event stored")
 
 		progress += 1
@@ -284,6 +291,8 @@ def main():
 		neo.finish()
 	if graph is not None:
 		graph.finish()
+	if jsonout is not None:
+		jsonout.close()
 
 	return
 
