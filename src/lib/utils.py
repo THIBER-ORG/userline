@@ -118,18 +118,18 @@ def build_event_from_source(item):
 	if item is None:
 		return event
 
-
-	# get event id from datasource
 	try:
-		event['eventid'] = item['event_identifier']
 		event['sourceid'] = item.meta['id']
 		event['index'] = item.meta['index']
-		item = item.to_dict()
 	except:
 		event['sourceid'] = item['_id']
 		event['index'] = item['_index']
-		item = item['_source']
 
+	item = item.to_dict()
+	item = item['_source']
+
+	# get event id from datasource
+	event['eventid'] = item['event_identifier']
 
 	# get logon type
 	aux = extract.re_logontype.search(item['xml_string'])
@@ -221,9 +221,9 @@ def build_event_from_source(item):
 			try:
 				val = aux.group(1)
 				if val == '-':
-					val = ''
+					val = 'N/A'
 			except:
-				val = ''
+				val = 'N/A'
 			event['ipaddress'] = val
 	except:
 		event['ipaddress'] = 'N/A'
@@ -231,10 +231,6 @@ def build_event_from_source(item):
 	event['raw'] = item['xml_string']
 	idval = hashlib.sha256('{}{}'.format(event['timestamp'],event['logonid']).encode('utf8'))
 	event['id'] = idval.hexdigest()
-
-	# Fix some values
-#	if event['ipaddress'] == '-':
-#		event['ipaddress'] = ''
 
 	return event
 
@@ -333,7 +329,6 @@ def get_last_event(index,computer=None,maxdate=None,pattern=None):
 		s = s[0:0]
 		s.aggs.bucket('computer','terms',field='computer_name.keyword').bucket('last','top_hits',size=1)
 
-	print(s.json())
 	res = s.execute()
 
 	if computer is None:
