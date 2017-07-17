@@ -296,7 +296,6 @@ def build_logon_sequence(duration,login,logout=None):
 		ret.update({ \
 				'logoff.meta.uid': logout['id'], \
 				'logoff.meta.id': logout['sourceid'], \
-				'logoff.meta.index': logout['index']
 			})
 
 	return ret

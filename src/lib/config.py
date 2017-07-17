@@ -136,7 +136,6 @@ EVENT_STRUCT = { \
 		'logon.meta.index': CONSTANT_NA,\
 		'logoff.meta.id': CONSTANT_NA, \
 		'logoff.meta.uid': CONSTANT_NA, \
-		'logoff.meta.index': CONSTANT_NA, \
 		# Logged on at a given time
 		'mark.description': CONSTANT_NA, \
 		'mark.value': CONSTANT_NA \
@@ -175,5 +174,4 @@ CSV_FIELDS = [ \
 		'logon.meta.index', \
 		'logoff.meta.id', \
 		'logoff.meta.uid', \
-		'logoff.meta.index' \
 	]
