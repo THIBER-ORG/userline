@@ -116,15 +116,16 @@ class Graphviz():
 		return ip
 
 
-	def __add_user(self,user):
+	def __add_user(self,user,sid):
 		if user['name'] == 'N/A':
 			return None
-		self.__create_node(self.USER_LIST,user,user['name'])
+		self.__create_node(self.USER_LIST,sid,user['name'])
 
 
 	def add_sequence(self,event,fullinfo,uniquelogon):
 		# add logon source
 		username = self.__genid_dict(event['logon.username'])
+		usersid = self.__genid_dict(event['logon.dstsid'])
 		computer = self.__genid_dict(event['logon.computer'])
 		domain = self.__genid_dict(event['logon.domain'])
 		srccomputer = self.__genid_dict(event['logon.srccomputer'])
@@ -139,7 +140,7 @@ class Graphviz():
 				else:
 					source = self.__add_source_ip(srcip)
 
-		self.__add_user(username)
+		self.__add_user(username,usersid)
 		self.__add_computer(computer)
 		self.__add_domain(domain)
 
@@ -150,23 +151,18 @@ class Graphviz():
 		# check user-computer relation
 		exists = None
 		if uniquelogon is True:
-			exists = self.cache.get_key(self.DEST_RELS,self.__gen_key(username['id'],computer['id']))
+			exists = self.cache.get_key(self.DEST_RELS,self.__gen_key(usersid['id'],computer['id']))
 			if exists is None:
-				self.cache.set_key(self.DEST_RELS,self.__gen_key(username['id'],computer['id']),True)
+				self.cache.set_key(self.DEST_RELS,self.__gen_key(usersid['id'],computer['id']),True)
 
 		if exists is None:
-			if fullinfo is True:
-				logondata = self.__get_logon_data(event)
-				query = "MATCH (user:User {{name:'{}'}}),(dest:Computer {{name:'{}'}}) MERGE (user)-[:LOGON_TO {}]->(dest)".format(username['name'],computer['name'],logondata)
-			else:
-				query = "MATCH (user:User {{name:'{}'}}),(dest:Computer {{name:'{}'}}) MERGE (user)-[:LOGON_TO {{date:'{}', type: '{}', logonid: '{}', srcid: '{}', src:'{}'}}]->(dest)".format(username['name'],computer['name'],event['logon.datetime'],event['logon.type'],event['logon.id'],event['logon.meta.id'],event['logon.srcip'])
-			self.graph.edge(username['id'],computer['id'],label='LOGON_TO')
+			self.graph.edge(usersid['id'],computer['id'],label='LOGON_TO')
 
 		# check user-domain relation
-		exists = self.cache.get_key(self.DOM_RELS,self.__gen_key(username['id'],domain['id']))
+		exists = self.cache.get_key(self.DOM_RELS,self.__gen_key(usersid['id'],domain['id']))
 		if exists is None:
-			self.cache.set_key(self.DOM_RELS,self.__gen_key(username['id'],domain['id']),True)
-			self.graph.edge(username['id'],domain['id'],label='MEMBER_OF')
+			self.cache.set_key(self.DOM_RELS,self.__gen_key(usersid['id'],domain['id']),True)
+			self.graph.edge(usersid['id'],domain['id'],label='MEMBER_OF')
 
 		# check src-dst relation
 		if source is not None:
@@ -177,16 +173,16 @@ class Graphviz():
 
 		# check user-src relation
 		if source is not None:
-			exists = self.cache.get_key(self.SRC_RELS,self.__gen_key(username['id'],source['id']))
+			exists = self.cache.get_key(self.SRC_RELS,self.__gen_key(usersid['id'],source['id']))
 			if exists is None:
-				self.cache.set_key(self.SRC_RELS,self.__gen_key(username['id'],source['id']),True)
-				self.graph.edge(source['id'],username['id'],label='AUTH_FROM')
+				self.cache.set_key(self.SRC_RELS,self.__gen_key(usersid['id'],source['id']),True)
+				self.graph.edge(usersid['id'],source['id'],label='AUTH_FROM')
 
 		# from session (TODO: Only if the source session has been processed. Fixit)
 		if event['logon.srcid'] != 'N/A':
 			prev = self.cache.get_key(self.SESSIONS_RELS,event['logon.srcid'])
 			if prev is None:
-				exists = self.cache.get_key(self.SRCLOGIN_RELS,self.__gen_key(username['id'],event['logon.srcid']))
+				exists = self.cache.get_key(self.SRCLOGIN_RELS,self.__gen_key(usersid['id'],event['logon.srcid']))
 				if exists is not None:
-					self.cache.set_key(self.SRCLOGIN_RELS,self.__gen_key(username['id'],event['logon.srcid']),True)
-					self.graph.edge(username['id'],prev['id'],label='FROM_SESSION')
+					self.cache.set_key(self.SRCLOGIN_RELS,self.__gen_key(usersid['id'],event['logon.srcid']),True)
+					self.graph.edge(usersid['id'],prev['id'],label='FROM_SESSION')

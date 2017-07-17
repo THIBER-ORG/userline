@@ -187,7 +187,6 @@ class Neo4J():
 			exists = self.cache.get_key(self.SRCDST_RELS,self.__gen_key(source['id'],computer['id']))
 			if exists is None:
 				self.cache.set_key(self.SRCDST_RELS,self.__gen_key(source['id'],computer['id']),True)
-				#self.neo.run("MATCH (src:Computer {{name:'{}'}}),(dst:Computer {{name:'{}'}}) MERGE (src)-[:ACCESS_TO]->(dst)".format(source['name'],computer['id']))
 				self.neo.run("MATCH (src:Computer {{name:'{}'}}),(dst:Computer {{name:'{}'}}) MERGE (src)-[:ACCESS_TO]->(dst)".format(source['name'],computer['name']))
 
 		# check user-src relation
@@ -195,7 +194,6 @@ class Neo4J():
 			exists = self.cache.get_key(self.SRC_RELS,self.__gen_key(usersid['id'],source['id']))
 			if exists is None:
 				self.cache.set_key(self.SRC_RELS,self.__gen_key(usersid['id'],source['id']),True)
-				#self.neo.run("MATCH (src:Computer {{name:'{}'}}),(user:User {{name:'{}'}}) MERGE (user)-[:AUTH_FROM]->(src)".format(source['name'],username['id']))
 				self.neo.run("MATCH (src:Computer {{name:'{}'}}),(user:User {{sid:'{}'}}) MERGE (user)-[:AUTH_FROM]->(src)".format(source['name'],usersid['name']))
 
 		# from session (TODO: Only if the source session has been processed. Fixit)
