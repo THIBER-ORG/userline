@@ -42,7 +42,7 @@ class Neo4J():
 		# setup neo4j
 		self.drv = GraphDatabase.driver(data[0], auth=basic_auth(data[1], data[2]))
 		self.neo = self.drv.session()
-		self.neo.run("CREATE INDEX ON :User(name)")
+		self.neo.run("CREATE INDEX ON :User(sid)")
 		self.neo.run("CREATE INDEX ON :Computer(name)")
 		self.neo.run("CREATE INDEX ON :Domain(name)")
 
@@ -128,15 +128,16 @@ class Neo4J():
 		return ip
 
 
-	def __add_user(self,user):
+	def __add_user(self,user,sid):
 		if user['name'] == 'N/A':
 			return None
-		self.__create_node(self.USER_LIST,user,"MERGE ({}:User {{name: '{}',label:'{}'}})".format(user['id'],user['name'],user['name']))
+		self.__create_node(self.USER_LIST,user,"MERGE ({}:User {{name: '{}',sid: '{}',label:'{}'}})".format(user['id'],user['name'],sid['name'],user['name']))
 
 
 	def add_sequence(self,event,fullinfo,uniquelogon):
 		# add logon source
 		username = self.__genid_dict(event['logon.username'])
+		usersid = self.__genid_dict(event['logon.dstsid'])
 		computer = self.__genid_dict(event['logon.computer'])
 		domain = self.__genid_dict(event['logon.domain'])
 		srccomputer = self.__genid_dict(event['logon.srccomputer'])
@@ -151,7 +152,7 @@ class Neo4J():
 				else:
 					source = self.__add_source_ip(srcip)
 
-		self.__add_user(username)
+		self.__add_user(username,usersid)
 		self.__add_computer(computer)
 		self.__add_domain(domain)
 
@@ -162,24 +163,24 @@ class Neo4J():
 		# check user-computer relation
 		exists = None
 		if uniquelogon is True:
-			exists = self.cache.get_key(self.DEST_RELS,self.__gen_key(username['id'],computer['id']))
+			exists = self.cache.get_key(self.DEST_RELS,self.__gen_key(usersid['id'],computer['id']))
 			if exists is None:
-				self.cache.set_key(self.DEST_RELS,self.__gen_key(username['id'],computer['id']),True)
+				self.cache.set_key(self.DEST_RELS,self.__gen_key(usersid['id'],computer['id']),True)
 
 		if exists is None:
 			if fullinfo is True:
 				logondata = self.__get_logon_data(event)
-				query = "MATCH (user:User {{name:'{}'}}),(dest:Computer {{name:'{}'}}) MERGE (user)-[:LOGON_TO {}]->(dest)".format(username['name'],computer['name'],logondata)
+				query = "MATCH (user:User {{sid:'{}'}}),(dest:Computer {{name:'{}'}}) MERGE (user)-[:LOGON_TO {}]->(dest)".format(usersid['name'],computer['name'],logondata)
 			else:
-				query = "MATCH (user:User {{name:'{}'}}),(dest:Computer {{name:'{}'}}) MERGE (user)-[:LOGON_TO {{date:'{}', type: '{}', logonid: '{}', srcid: '{}', src:'{}'}}]->(dest)".format(username['name'],computer['name'],event['logon.datetime'],event['logon.type'],event['logon.id'],event['logon.meta.id'],event['logon.srcip'])
+				query = "MATCH (user:User {{sid:'{}'}}),(dest:Computer {{name:'{}'}}) MERGE (user)-[:LOGON_TO {{date:'{}', type: '{}', logonid: '{}', srcid: '{}', src:'{}'}}]->(dest)".format(usersid['name'],computer['name'],event['logon.datetime'],event['logon.type'],event['logon.id'],event['logon.meta.id'],event['logon.srcip'])
 
 			self.neo.run(query)
 
 		# check user-domain relation
-		exists = self.cache.get_key(self.DOM_RELS,self.__gen_key(username['id'],domain['id']))
+		exists = self.cache.get_key(self.DOM_RELS,self.__gen_key(usersid['id'],domain['id']))
 		if exists is None:
-			self.cache.set_key(self.DOM_RELS,self.__gen_key(username['id'],domain['id']),True)
-			self.neo.run("MATCH (user:User {{name:'{}'}}),(domain:Domain {{name:'{}'}}) MERGE (user)-[:MEMBER_OF]->(domain)".format(username['name'],domain['name']))
+			self.cache.set_key(self.DOM_RELS,self.__gen_key(usersid['id'],domain['id']),True)
+			self.neo.run("MATCH (user:User {{sid:'{}'}}),(domain:Domain {{name:'{}'}}) MERGE (user)-[:MEMBER_OF]->(domain)".format(usersid['name'],domain['name']))
 
 		# check src-dst relation
 		if source is not None:
@@ -191,11 +192,11 @@ class Neo4J():
 
 		# check user-src relation
 		if source is not None:
-			exists = self.cache.get_key(self.SRC_RELS,self.__gen_key(username['id'],source['id']))
+			exists = self.cache.get_key(self.SRC_RELS,self.__gen_key(usersid['id'],source['id']))
 			if exists is None:
-				self.cache.set_key(self.SRC_RELS,self.__gen_key(username['id'],source['id']),True)
+				self.cache.set_key(self.SRC_RELS,self.__gen_key(usersid['id'],source['id']),True)
 				#self.neo.run("MATCH (src:Computer {{name:'{}'}}),(user:User {{name:'{}'}}) MERGE (user)-[:AUTH_FROM]->(src)".format(source['name'],username['id']))
-				self.neo.run("MATCH (src:Computer {{name:'{}'}}),(user:User {{name:'{}'}}) MERGE (user)-[:AUTH_FROM]->(src)".format(source['name'],username['name']))
+				self.neo.run("MATCH (src:Computer {{name:'{}'}}),(user:User {{sid:'{}'}}) MERGE (user)-[:AUTH_FROM]->(src)".format(source['name'],usersid['name']))
 
 		# from session (TODO: Only if the source session has been processed. Fixit)
 		if event['logon.srcid'] != 'N/A':

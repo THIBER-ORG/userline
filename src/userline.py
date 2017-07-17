@@ -51,7 +51,7 @@ def main():
 	required.add_argument("-H","--eshosts",help="Single or comma separated list of ElasticSearch hosts to query (default: localhost)",default=defaults.ES_HOSTS)
 	required.add_argument("-S","--pool-size",help="Connection pool size (default: {})".format(defaults.ES_POOL_SIZE),type=int,default=defaults.ES_POOL_SIZE)
 	required.add_argument("-i","--index",help="Index name/pattern",required=True)
-	required.add_argument("-r","--redis",help="Redis URL (format: redis://:pass@host:port/db)",required=False,default=False,metavar="URL")
+	required.add_argument("-r","--redis",help="Redis URL (format: redis://:pass@host:port/db)",required=False,default=None,metavar="URL")
 
 	aux = parser.add_argument_group('Actions')
 	action = aux.add_mutually_exclusive_group(required=True)
@@ -91,6 +91,8 @@ def main():
 	extrainfo.add_argument("-m","--mark-if-logged-at",help="Marks logged in users at a given time",metavar="DATETIME")
 
 	args = parser.parse_args()
+
+	print(args.redis)
 
 	if args.last_event is False and args.logons is False and args.who_was_at is None and args.last_shutdown is False and args.inspect is False:
 		log.critical("You need to specify at least one action argument")
