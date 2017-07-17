@@ -7,7 +7,6 @@
 
 import sys
 import time
-import json
 import logging
 import argparse
 
@@ -18,6 +17,7 @@ from elasticsearch_dsl import Search,Q,A
 from elasticsearch_dsl.connections import connections
 
 from lib import config,defaults,utils
+from lib.output.json import JSON
 from lib.output.csv import CSV
 from lib.output.neo4j import Neo4J
 from lib.output.graphviz import Graphviz
@@ -51,6 +51,7 @@ def main():
 	required.add_argument("-H","--eshosts",help="Single or comma separated list of ElasticSearch hosts to query (default: localhost)",default=defaults.ES_HOSTS)
 	required.add_argument("-S","--pool-size",help="Connection pool size (default: {})".format(defaults.ES_POOL_SIZE),type=int,default=defaults.ES_POOL_SIZE)
 	required.add_argument("-i","--index",help="Index name/pattern",required=True)
+	required.add_argument("-r","--redis",help="Redis URL (format: redis://:pass@host:port/db)",required=False,default=False,metavar="URL")
 
 	aux = parser.add_argument_group('Actions')
 	action = aux.add_mutually_exclusive_group(required=True)
@@ -68,6 +69,9 @@ def main():
 
 	csvout = parser.add_argument_group('CSV options')
 	csvout.add_argument("-F","--disable-timeframe",help="Do not create timeframe entries",action='store_true',default=False)
+
+	jsonout = parser.add_argument_group('JSON options')
+	jsonout.add_argument("-d","--duplicate-events",help="Duplicate events (logon & logoff)",action='store_true',default=False)
 
 	neoargs = parser.add_argument_group('Neo4J options')
 	neoargs.add_argument("-f","--neo4j-full-info",help="Saves full logon/logoff info in Neo4j relations",action='store_true',default=False)
@@ -110,6 +114,9 @@ def main():
 	# setup elasticsearch
 	connections.create_connection(hosts=args.eshosts.split(','),maxsize=args.pool_size)
 	conn = connections.get_connection()
+	if not conn.ping():
+		log.critical("Cannot connect to Elasticsearch server. Exiting...")
+		return
 
 	# shows some statistics about the indexed data
 	if args.inspect is True:
@@ -167,17 +174,17 @@ def main():
 		if args.mark_if_logged_at is None:
 			csv.disable_mark()
 
-	jsonout = None
+	json = None
 	if args.json_output is not None:
-		jsonout = args.json_output
+		json = JSON(args.json_output,args.duplicate_events)
 
 	neo = None
 	if args.neo4j is not None:
-		neo = Neo4J(args.neo4j)
+		neo = Neo4J(args.neo4j,args.redis)
 
 	graph = None
 	if args.graphviz is not None:
-		graph = Graphviz(args.graphviz)
+		graph = Graphviz(args.graphviz,args.redis)
 
 	log.info("Building query")
 	# Look for first required events
@@ -260,12 +267,12 @@ def main():
 			count += 1
 			if csv is not None:
 				csv.add_sequence(event)
+			if json is not None:
+				json.add_sequence(event)
 			if neo is not None:
 				neo.add_sequence(event,args.neo4j_full_info,args.unique_logon_rels)
 			if graph is not None:
 				graph.add_sequence(event,args.neo4j_full_info,args.unique_logon_rels)
-			if jsonout is not None:
-				jsonout.write(json.dumps(event,sort_keys=True, indent=config.JSON_INDENT)+'\n')
 			log.debug("Event stored")
 
 		progress += 1
@@ -291,8 +298,10 @@ def main():
 		neo.finish()
 	if graph is not None:
 		graph.finish()
-	if jsonout is not None:
-		jsonout.close()
+	if json is not None:
+		json.finish()
+	if csv is not None:
+		csv.finish()
 
 	return
 

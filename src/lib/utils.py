@@ -178,6 +178,22 @@ def build_event_from_source(item):
 		val = 'N/A'
 	event['sessionname'] = val
 
+	# get src SID
+	aux = extract.re_srcsid.search(item['xml_string'])
+	try:
+		val = aux.group(1)
+	except:
+		val = 'N/A'
+	event['srcsid'] = val
+
+	# get dst SID
+	aux = extract.re_dstsid.search(item['xml_string'])
+	try:
+		val = aux.group(1)
+	except:
+		val = 'N/A'
+	event['dstsid'] = val
+
 	# get SubjectLogonId
 	aux = extract.re_logonsrcid.search(item['xml_string'])
 	try:
@@ -256,7 +272,9 @@ def build_logon_sequence(duration,login,logout=None):
 			'logon.timestamp': login['timestamp'], \
 			'logon.id': login['logonid'], \
 			'logon.sessionname': login['sessionname'], \
-			'logon.srcid': login['srcid'] \
+			'logon.srcid': login['srcid'], \
+			'logon.srcsid': login['srcsid'], \
+			'logon.dstsid': login['dstsid'] \
 		})
 
 	if logout is not None:

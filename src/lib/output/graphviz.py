@@ -22,9 +22,9 @@ class Graphviz():
 	SRVDOM_RELS = 'serverbelongsto'
 	
 
-	def __init__(self,output):
+	def __init__(self,output,cache_data):
 		# TODO: Store this relations in a redis-like cache
-		self.cache = Cache()
+		self.cache = Cache(cache_data)
 		self.cache.create_cache(self.DEST_RELS)
 		self.cache.create_cache(self.DOM_RELS)
 		self.cache.create_cache(self.SRC_RELS)

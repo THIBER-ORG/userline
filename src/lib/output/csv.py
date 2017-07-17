@@ -30,3 +30,6 @@ class CSV():
 		for i in CSV_MARK_POS:
 			del self.csvfields[i-count]
 			count = count + 1
+
+	def finish(self):
+		return

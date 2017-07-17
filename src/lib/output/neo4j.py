@@ -21,13 +21,13 @@ class Neo4J():
 	SRV_LIST = 'servers'
 	SRVDOM_RELS = 'serverbelongsto'
 
-	def __init__(self,url):
+	def __init__(self,url,cache_data):
 		proto = "{}/".format('/'.join(url.split('/')[:2]))
 		userpwd = url.split('/')[2].split('@')[0]
 		uri = url.split('@')[1]
 		data = ["{}{}".format(proto,uri),userpwd.split(':')[0], userpwd.split(':')[1]]
 		# TODO: Store this relations in a redis-like cache
-		self.cache = Cache()
+		self.cache = Cache(cache_data)
 		self.cache.create_cache(self.DEST_RELS)
 		self.cache.create_cache(self.DOM_RELS)
 		self.cache.create_cache(self.SRC_RELS)

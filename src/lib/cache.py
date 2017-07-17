@@ -4,20 +4,48 @@
 #         https://github.com/thiber-org/userline
 #
 
-import redis
+import logging
+from lib import config
+
+try:
+	import redis
+	HAVE_REDIS = True
+except:
+	HAVE_REDIS = False
 
 class Cache():
 	TYPE_MEM = 0
 	TYPE_REDIS = 1
 
+	log = logging.getLogger(config.APP_NAME)
+
+
 	def __init__(self,rurl=None):
+		if rurl is not None and not HAVE_REDIS:
+			self.log.warning("Redis python module not found, using default memory cache")
+			rurl = None
+
+		self.__set_cache(rurl)
+		if not self.__clear_cache():
+			self.log.warning("Redis not available, using default memory cache")
+			self.__set_cache(None)
+
+
+	def __set_cache(self,rurl):
 		if rurl is None:
 			self.type = self.TYPE_MEM
 			self.cache = {}
 		else:
 			self.type = self.TYPE_REDIS
-			self.cache = redis.Redis.from_url(url="redis://:@172.17.0.2:6379/1")
-			self.cache.flushdb()
+			self.cache = redis.Redis.from_url(url=rurl)
+
+	def __clear_cache(self):
+		if self.type == self.TYPE_REDIS:
+			try:
+				self.cache.flushdb()
+			except:
+				return False
+		return True
 
 	def create_cache(self,name):
 		if self.type == self.TYPE_MEM:
@@ -34,12 +62,12 @@ class Cache():
 	def get_key(self,name,key):
 		retval = None
 
-		if self.type == self.TYPE_MEM
+		if self.type == self.TYPE_MEM:
 			try:
 				retval = self.cache[name][key]
 			except:
 				pass
 		else:
-			retval = cache.get("{}.{}".format(name,key))
+			retval = self.cache.get("{}.{}".format(name,key))
 
 		return retval

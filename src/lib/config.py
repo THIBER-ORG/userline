@@ -124,6 +124,8 @@ EVENT_STRUCT = { \
 		'logon.sessionname': CONSTANT_NA, \
 		'logon.srcid': CONSTANT_NA, \
 		'logon.timestamp': 0, \
+		'logon.srcsid': CONSTANT_NA, \
+		'logon.dstsid': CONSTANT_NA, \
 		# Logoff data
 		'logoff.datetime': CONSTANT_NA, \
 		'logoff.eventid': CONSTANT_NA, \
@@ -158,6 +160,8 @@ CSV_FIELDS = [ \
 		'logon.eventid', \
 		'logon.type', \
 		'logon.id', \
+		'logon.srcsid', \
+		'logon.dstsid', \
 		'logon.sessionname', \
 		'logon.srcid', \
 		'logon.timestamp', \
