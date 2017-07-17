@@ -131,7 +131,7 @@ class Neo4J():
 	def __add_user(self,user,sid):
 		if user['name'] == 'N/A':
 			return None
-		self.__create_node(self.USER_LIST,sid,"MERGE ({}:User {{name: '{}',sid: '{}',label:'{}'}})".format(user['id'],user['name'],sid['name'],user['name']))
+		self.__create_node(self.USER_LIST,sid,"MERGE ({}:User {{name: '{}',sid: '{}',label:'{}'}})".format(sid['id'],user['name'],sid['name'],user['name']))
 
 
 	def add_sequence(self,event,fullinfo,uniquelogon):
