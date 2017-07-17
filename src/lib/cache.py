@@ -71,3 +71,15 @@ class Cache():
 			retval = self.cache.get("{}.{}".format(name,key))
 
 		return retval
+
+	def get_keys(self,name):
+		retval = None
+		if self.type == self.TYPE_MEM:
+			try:
+				aux = self.cache[name].keys()
+			except:
+				return retval
+			retval = {}
+			for k in aux:
+				retval[k] = self.cache[name][k]
+		return retval

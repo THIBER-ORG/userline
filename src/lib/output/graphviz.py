@@ -16,6 +16,7 @@ class Graphviz():
 	SRCDST_RELS = 'sourcedest'
 	SRCLOGIN_RELS = 'srclogin'
 	SESSIONS_RELS = 'sessions'
+	FROM_SESSIONS = 'fromsessions'
 	USER_LIST = 'users'
 	DOM_LIST = 'domains'
 	SRV_LIST = 'servers'
@@ -31,17 +32,13 @@ class Graphviz():
 		self.cache.create_cache(self.SRCDST_RELS)
 		self.cache.create_cache(self.SRCLOGIN_RELS)
 		self.cache.create_cache(self.SESSIONS_RELS)
+		self.cache.create_cache(self.FROM_SESSIONS)
 		self.cache.create_cache(self.USER_LIST)
 		self.cache.create_cache(self.DOM_LIST)
 		self.cache.create_cache(self.SRV_LIST)
 		self.cache.create_cache(self.SRVDOM_RELS)
 		self.output = output
 		self.graph = gv.Digraph()
-
-
-	def finish(self):
-		self.output.write(self.graph.source)
-		self.output.close()
 
 
 	def __genid_dict(self,value):
@@ -123,6 +120,7 @@ class Graphviz():
 
 
 	def add_sequence(self,event,fullinfo,uniquelogon):
+		self.uniquelogon = uniquelogon
 		# add logon source
 		username = self.__genid_dict(event['logon.username'])
 		usersid = self.__genid_dict(event['logon.dstsid'])
@@ -146,7 +144,7 @@ class Graphviz():
 
 		# for future possible references, store the username
 		if username['name'] != 'N/A':
-			self.cache.set_key(self.SESSIONS_RELS,event['logon.id'],username)
+			self.cache.set_key(self.SESSIONS_RELS,event['logon.trackingid'],usersid['name'])
 
 		# check user-computer relation
 		exists = None
@@ -178,11 +176,24 @@ class Graphviz():
 				self.cache.set_key(self.SRC_RELS,self.__gen_key(usersid['id'],source['id']),True)
 				self.graph.edge(usersid['id'],source['id'],label='AUTH_FROM')
 
-		# from session (TODO: Only if the source session has been processed. Fixit)
-		if event['logon.srcid'] != 'N/A':
-			prev = self.cache.get_key(self.SESSIONS_RELS,event['logon.srcid'])
-			if prev is None:
-				exists = self.cache.get_key(self.SRCLOGIN_RELS,self.__gen_key(usersid['id'],event['logon.srcid']))
-				if exists is not None:
-					self.cache.set_key(self.SRCLOGIN_RELS,self.__gen_key(usersid['id'],event['logon.srcid']),True)
-					self.graph.edge(usersid['id'],prev['id'],label='FROM_SESSION')
+		# srctrackingid
+		self.cache.set_key(self.FROM_SESSIONS,usersid['name'],event['logon.srctrackingid'])
+
+
+        
+	def finish(self):
+		sessions = self.cache.get_keys(self.FROM_SESSIONS)
+		if not sessions:
+			return
+		for sid in sessions.keys():
+			prev = self.cache.get_key(self.SESSIONS_RELS,sessions[sid])
+			if prev is not None:
+				exists = None
+				if self.uniquelogon is True:
+					exists = self.cache.get_key(self.SRCLOGIN_RELS,self.__gen_key(sessions[sid],prev))
+				if exists is None:
+					self.cache.set_key(self.SRCLOGIN_RELS,self.__gen_key(sessions[sid],prev),True)
+				self.graph.edge(sid,prev,label="FROM_SESSION")
+
+		self.output.write(self.graph.source)
+		self.output.close()

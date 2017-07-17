@@ -248,6 +248,29 @@ def build_event_from_source(item):
 	except:
 		event['ipaddress'] = 'N/A'
 
+	# get event logon tracking id
+	#   user sid
+	#   user name
+	#   domain name
+	#   logon id
+	event['trackingid'] = hashlib.sha256(str("{}|{}|{}|{}".format(event['dstsid'],event['username'],event['domain'],event['logonid'])).encode('utf-8')).hexdigest()
+	# subject*
+	# get SubjectUserName
+	aux = extract.re_srcuser.search(item['xml_string'])
+	try:
+		srcuser = aux.group(1)
+	except:
+		srcuser = 'N/A'
+	# get SubjectDomainName
+	aux = extract.re_srcdomain.search(item['xml_string'])
+	try:
+		srcdomain = aux.group(1)
+	except:
+		srcdomain = 'N/A'
+
+	event['srctrackingid'] = hashlib.sha256(str("{}|{}|{}|{}".format(event['srcsid'],srcuser,srcdomain,event['srcid'])).encode('utf-8')).hexdigest()
+	
+
 	event['raw'] = item['xml_string']
 	idval = hashlib.sha256('{}{}'.format(event['timestamp'],event['logonid']).encode('utf8'))
 	event['id'] = idval.hexdigest()
@@ -274,6 +297,8 @@ def build_logon_sequence(duration,login,logout=None):
 			'logon.sessionname': login['sessionname'], \
 			'logon.srcid': login['srcid'], \
 			'logon.srcsid': login['srcsid'], \
+			'logon.trackingid': login['trackingid'], \
+			'logon.srctrackingid': login['srctrackingid'], \
 			'logon.dstsid': login['dstsid'] \
 		})
 

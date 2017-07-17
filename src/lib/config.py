@@ -104,6 +104,10 @@ EVENT_SKEL = { \
 		'sourceid': CONSTANT_NA, \
 		'id': CONSTANT_NA,  \
 		'srcid': CONSTANT_NA, \
+		'srcsid': CONSTANT_NA, \
+		'dstsid': CONSTANT_NA, \
+		'trackingid': CONSTANT_NA, \
+		'srctrackingid': CONSTANT_NA, \
 		'raw': CONSTANT_NA \
 	}
 
@@ -126,6 +130,8 @@ EVENT_STRUCT = { \
 		'logon.timestamp': 0, \
 		'logon.srcsid': CONSTANT_NA, \
 		'logon.dstsid': CONSTANT_NA, \
+		'logon.trackingid': CONSTANT_NA, \
+		'logon.srctrackingid': CONSTANT_NA, \
 		# Logoff data
 		'logoff.datetime': CONSTANT_NA, \
 		'logoff.eventid': CONSTANT_NA, \
@@ -159,6 +165,8 @@ CSV_FIELDS = [ \
 		'logon.eventid', \
 		'logon.type', \
 		'logon.id', \
+		'logon.srctrackingid', \
+		'logon.trackingid', \
 		'logon.srcsid', \
 		'logon.dstsid', \
 		'logon.sessionname', \

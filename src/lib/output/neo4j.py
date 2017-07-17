@@ -16,6 +16,7 @@ class Neo4J():
 	SRCDST_RELS = 'sourcedest'
 	SRCLOGIN_RELS = 'srclogin'
 	SESSIONS_RELS = 'sessions'
+	FROM_SESSIONS = 'fromsessions'
 	USER_LIST = 'users'
 	DOM_LIST = 'domains'
 	SRV_LIST = 'servers'
@@ -34,6 +35,7 @@ class Neo4J():
 		self.cache.create_cache(self.SRCDST_RELS)
 		self.cache.create_cache(self.SRCLOGIN_RELS)
 		self.cache.create_cache(self.SESSIONS_RELS)
+		self.cache.create_cache(self.FROM_SESSIONS)
 		self.cache.create_cache(self.USER_LIST)
 		self.cache.create_cache(self.DOM_LIST)
 		self.cache.create_cache(self.SRV_LIST)
@@ -135,6 +137,7 @@ class Neo4J():
 
 
 	def add_sequence(self,event,fullinfo,uniquelogon):
+		self.uniquelogon = uniquelogon
 		# add logon source
 		username = self.__genid_dict(event['logon.username'])
 		usersid = self.__genid_dict(event['logon.dstsid'])
@@ -158,11 +161,11 @@ class Neo4J():
 
 		# for future possible references, store the username
 		if username['name'] != 'N/A':
-			self.cache.set_key(self.SESSIONS_RELS,event['logon.id'],username)
+			self.cache.set_key(self.SESSIONS_RELS,event['logon.trackingid'],usersid['name'])
 
 		# check user-computer relation
 		exists = None
-		if uniquelogon is True:
+		if self.uniquelogon is True:
 			exists = self.cache.get_key(self.DEST_RELS,self.__gen_key(usersid['id'],computer['id']))
 			if exists is None:
 				self.cache.set_key(self.DEST_RELS,self.__gen_key(usersid['id'],computer['id']),True)
@@ -172,7 +175,7 @@ class Neo4J():
 				logondata = self.__get_logon_data(event)
 				query = "MATCH (user:User {{sid:'{}'}}),(dest:Computer {{name:'{}'}}) MERGE (user)-[:LOGON_TO {}]->(dest)".format(usersid['name'],computer['name'],logondata)
 			else:
-				query = "MATCH (user:User {{sid:'{}'}}),(dest:Computer {{name:'{}'}}) MERGE (user)-[:LOGON_TO {{date:'{}', type: '{}', logonid: '{}', srcid: '{}', src:'{}'}}]->(dest)".format(usersid['name'],computer['name'],event['logon.datetime'],event['logon.type'],event['logon.id'],event['logon.meta.id'],event['logon.srcip'])
+				query = "MATCH (user:User {{sid:'{}'}}),(dest:Computer {{name:'{}'}}) MERGE (user)-[:LOGON_TO {{date:'{}', type: '{}', logonid: '{}', srcid: '{}', trackingid:'{}', src:'{}'}}]->(dest)".format(usersid['name'],computer['name'],event['logon.datetime'],event['logon.type'],event['logon.id'],event['logon.meta.id'],event['logon.trackingid'],event['logon.srcip'])
 
 			self.neo.run(query)
 
@@ -187,20 +190,38 @@ class Neo4J():
 			exists = self.cache.get_key(self.SRCDST_RELS,self.__gen_key(source['id'],computer['id']))
 			if exists is None:
 				self.cache.set_key(self.SRCDST_RELS,self.__gen_key(source['id'],computer['id']),True)
-				self.neo.run("MATCH (src:Computer {{name:'{}'}}),(dst:Computer {{name:'{}'}}) MERGE (src)-[:ACCESS_TO]->(dst)".format(source['name'],computer['name']))
+				self.neo.run("MATCH (src:Computer {{name:'{}'}}),(dst:Computer {{name:'{}'}}) MERGE (src)-[:ACCESS_TO {{trackingid:'{}'}}]->(dst)".format(source['name'],computer['name'],event['logon.trackingid']))
 
 		# check user-src relation
 		if source is not None:
 			exists = self.cache.get_key(self.SRC_RELS,self.__gen_key(usersid['id'],source['id']))
 			if exists is None:
 				self.cache.set_key(self.SRC_RELS,self.__gen_key(usersid['id'],source['id']),True)
-				self.neo.run("MATCH (src:Computer {{name:'{}'}}),(user:User {{sid:'{}'}}) MERGE (user)-[:AUTH_FROM]->(src)".format(source['name'],usersid['name']))
+				self.neo.run("MATCH (src:Computer {{name:'{}'}}),(user:User {{sid:'{}'}}) MERGE (user)-[:AUTH_FROM {{trackingid:'{}'}}]->(src)".format(source['name'],usersid['name'],event['logon.trackingid']))
 
-		# from session (TODO: Only if the source session has been processed. Fixit)
-		if event['logon.srcid'] != 'N/A':
-			prev = self.cache.get_key(self.SESSIONS_RELS,event['logon.srcid'])
-			if prev is None:
-				exists = self.cache.get_key(self.SRCLOGIN_RELS,self.__gen_key(username['id'],event['logon.srcid']))
-				if exists is not None:
-					self.cache.set_key(self.SRCLOGIN_RELS,self.__gen_key(username['id'],event['logon.srcid']),True)
-					self.neo.run("MATCH (dst:User {{name:'{}'}}),(src:User {{name:'{}'}}) MERGE (dst)-[:FROM_SESSION {{logonid:'{}'}}]->(src)".format(username['name'],self.sessions[event['logon.srcid']],event['logon.srcid']))
+		# srctrackingid
+		self.cache.set_key(self.FROM_SESSIONS,usersid['name'],event['logon.srctrackingid'])
+
+
+	def finish(self):
+		sessions = self.cache.get_keys(self.FROM_SESSIONS)
+		if not sessions:
+			return
+		for sid in sessions.keys():
+			prev = self.cache.get_key(self.SESSIONS_RELS,sessions[sid])
+			if prev is not None:
+				exists = None
+				if self.uniquelogon is True:
+					exists = self.cache.get_key(self.SRCLOGIN_RELS,self.__gen_key(sessions[sid],prev))
+				if exists is None:
+					self.cache.set_key(self.SRCLOGIN_RELS,self.__gen_key(sessions[sid],prev),True)
+					self.neo.run("MATCH (cur:User {{sid:'{}'}}),(from:User {{sid:'{}'}}) MERGE (cur)-[:FROM_SESSION {{trackingid:'{}'}}]->(from)".format(sid,prev,sessions[sid]))
+
+		try:
+			# https://neo4j.com/developer/python/
+			#  File "/usr/local/lib/python3.5/dist-packages/neo4j/v1/api.py", line 245, in _disconnect
+			#    self._connection.in_use = False
+			#AttributeError: 'NoneType' object has no attribute 'in_use'
+			self.neo.close()
+		except:
+			pass
