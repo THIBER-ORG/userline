@@ -226,7 +226,7 @@ Getting logon relations between two dates into a CSV file:
 	INFO - 44 Logons processed in 0:00:02.051880
 
 ## JSON Output
-Getting logon relations between two dates into a CSV file:
+Getting logon relations between two dates into a JSON file:
 
 	$ ./userline.py -l -i ir-1329585-events-security-windows -t 2016-11-20T11:00:00 -T 2016-11-21T11:00:00 -j output.json
 	
