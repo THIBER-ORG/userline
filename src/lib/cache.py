@@ -68,7 +68,10 @@ class Cache():
 			except:
 				pass
 		else:
-			retval = self.cache.get("{}.{}".format(name,key))
+			val = self.cache.get("{}.{}".format(name,key))
+			if type(val) == type(b''):
+				val = val.decode('utf-8')
+			retval = val
 
 		return retval
 
@@ -82,4 +85,11 @@ class Cache():
 			retval = {}
 			for k in aux:
 				retval[k] = self.cache[name][k]
+		else:
+			keys = self.cache.keys("{}.*".format(name))
+			retval = {}
+			for k in keys:
+				name = k.decode('utf-8').split('.')[1:][0]
+				retval[name] = self.cache.get(k).decode('utf-8')
+
 		return retval

@@ -149,7 +149,7 @@ class Neo4J():
 		source = None
 		if len(event['logon.srcip']) > 0:
 			orig = event['logon.srcip']
-			if not orig in ["127.0.0.1","LOCAL","::1"]:
+			if not orig in ["127.0.0.1","LOCAL","::1","N/A"]:
 				if event['logon.srccomputer'] != 'N/A':
 					source = self.__add_computer(srccomputer,srcip)
 				else:
