@@ -156,14 +156,14 @@ Analyze EVTx files with [plaso](https://github.com/log2timeline/plaso)
 
 **Note**: psort elastic output is really slow, for better performance upload the .plaso file to [TimeSketch](https://github.com/google/timesketch)
 
-If your image does not already support it, enable elastic output psort module
+If your image does not already support it, use the included Plaso Dockerfile:
 
-	$ docker run -ti --entrypoint=/bin/bash -v /mnt/IR/1329585/:/data log2timeline/plaso
-	root@@d3a8d0e1f0ac:/home/plaso# apt-get update && apt-get install -y python-pip && pip install pyelasticsearch
+	$ cd userline/plaso
+	$ docker build . -t plaso/es
 
 Process the events and store them into elasticsearch
 
-	root@@d3a8d0e1f0ac:/home/plaso# psort.py -o elastic --server 172.21.0.2 --port 9200 --doc_type plaso --index_name ir-1329585-events-security-windows /data/processed/events/windows/security/sec-evtx.plaso
+	$ docker run -ti -v /mnt/IR/1329585/:/data plaso/es psort.py -o elastic --server 172.21.0.2 --port 9200 --doc_type plaso --index_name ir-1329585-events-security-windows /data/processed/events/windows/security/sec-evtx.plaso
 
 
 ## Using the tool
