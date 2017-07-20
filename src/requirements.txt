@@ -1,4 +1,0 @@
-elasticsearch-dsl>=5.2.0
-neo4j-driver>=1.2.1
-python_dateutil>=2.6.0
-graphviz>=0.7
