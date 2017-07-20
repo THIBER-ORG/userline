@@ -163,7 +163,7 @@ If your image does not already support it, use the included Plaso Dockerfile:
 
 Process the events and store them into elasticsearch
 
-	$ docker run -ti -v /mnt/IR/1329585/:/data plaso/es psort.py -o elastic --server 172.21.0.2 --port 9200 --doc_type plaso --index_name ir-1329585-events-security-windows /data/processed/events/windows/security/sec-evtx.plaso
+	$ docker run -ti --net="host" -v /mnt/IR/1329585/:/data plaso/es psort.py -o elastic --server 172.21.0.2 --port 9200 --doc_type plaso --index_name ir-1329585-events-security-windows /data/processed/events/windows/security/sec-evtx.plaso
 
 
 ## Using the tool
