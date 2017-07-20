@@ -1,6 +1,8 @@
+![BlackHat_Arsenal](https://img.shields.io/badge/BlackHat%20Arsenal-2017-red.svg)
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 ![docker_supported](https://img.shields.io/badge/Docker-Supported-blue.svg)
 [![Python 3](https://img.shields.io/badge/Python-3-brightgreen.svg)](https://github.com/THIBER-ORG/userline/)
+
 ![build_travis](https://travis-ci.org/THIBER-ORG/userline.svg?branch=master)
 [![Dependency Status](https://gemnasium.com/badges/github.com/THIBER-ORG/userline.svg)](https://gemnasium.com/github.com/THIBER-ORG/userline)
 [![Github Issues](http://githubbadges.herokuapp.com/THIBER-ORG/userline/issues.svg?style=flat-square)](https://github.com/THIBER-ORG/userline/issues)
