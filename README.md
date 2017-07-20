@@ -23,8 +23,8 @@ It has five output modes:
 
 # Content
 1. [Preparation](#preparation)
-    1. [Building a docker image](#building-a-docker-image)
-    1. [Running from docker](#running-from-docker)
+    1. [Building a Docker image](#building-a-docker-image)
+    1. [Running from Docker](#running-from-docker)
 1. [Command Line](#command-line)
 1. [EVTx Analisys](#evtx-analisys)
 1. [Indexing](#indexing)
@@ -45,15 +45,15 @@ It has five output modes:
 	cd userline/src
 	sudo pip3 install -U -r requirements.txt
 
-### Building a docker image
-Optionally you can build a docker image as follows:
+### Building a Docker image
+Optionally you can build a Docker image as follows:
 
 	git clone https://github.com/THIBER-ORG/userline.git
 	cd userline
 	docker build . -t userline
 
-### Running from docker
-To work with UserLine when using the docker image, use the following syntax:
+### Running from Docker
+To work with UserLine when using the Docker image, use the following syntax:
 
 	docker run --rm -ti --net=host -v [YOUR_DATA_PATH]:/data userline userline [PARAMETERS]
 
@@ -76,10 +76,10 @@ Example:
 	        @sch3m4
 	        https://github.com/thiber-org/userline
 	
-	usage: userline.py [-h] [-H ESHOSTS] [-S POOL_SIZE] -i INDEX
-	                   (-L | -E | -l | -w DATE) [-c PATH] [-n BOLT] [-g PATH] [-F]
-	                   [-f] [-s] [-t MIN_DATE] [-T MAX_DATE] [-p PATTERN] [-I]
-	                   [-k] [-v] [-m DATETIME]
+	usage: userline.py [-h] [-H ESHOSTS] [-S POOL_SIZE] -i INDEX [-r URL]
+	                   (-x | -L | -E | -l | -w DATE) [-c PATH] [-j PATH] [-n BOLT]
+	                   [-g PATH] [-F] [-d] [-f] [-s] [-t MIN_DATE] [-T MAX_DATE]
+	                   [-p PATTERN] [-I] [-k] [-v] [-m DATETIME]
 	
 	optional arguments:
 	  -h, --help            show this help message and exit
@@ -92,8 +92,10 @@ Example:
 	                        Connection pool size (default: 5)
 	  -i INDEX, --index INDEX
 	                        Index name/pattern
+	  -r URL, --redis URL   Redis URL (format: redis://:pass@host:port/db)
 	
 	Actions:
+	  -x, --inspect         Gets some statistics about the indexed data
 	  -L, --last-shutdown   Gets last shutdown data
 	  -E, --last-event      Gets last event data
 	  -l, --logons          Shows user logon activity
@@ -115,6 +117,10 @@ Example:
 	  -F, --disable-timeframe
 	                        Do not create timeframe entries
 	
+	JSON options:
+	  -d, --duplicate-events
+	                        Duplicate events (logon & logoff)
+	
 	Neo4J options:
 	  -f, --neo4j-full-info
 	                        Saves full logon/logoff info in Neo4j relations
@@ -125,9 +131,9 @@ Example:
 	
 	Optional filtering arguments:
 	  -t MIN_DATE, --min-date MIN_DATE
-	                        Searches since specified date (default: 2016-05-04)
+	                        Searches since specified date (default: 2016-07-20)
 	  -T MAX_DATE, --max-date MAX_DATE
-	                        Searches up to specified date (default: 2017-05-04)
+	                        Searches up to specified date (default: 2017-07-20)
 	  -p PATTERN, --pattern PATTERN
 	                        Includes pattern in search
 	  -I, --include-local   Includes local services logons (default: Excluded)
