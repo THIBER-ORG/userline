@@ -43,7 +43,7 @@ It has five output modes:
 ## Preparation
 	git clone https://github.com/THIBER-ORG/userline.git
 	cd userline/src
-	sudo pip3 install -U -r requirements.txt
+	sudo pip3 install -U -r ../requirements.txt
 
 ### Building a Docker image
 Optionally you can build a Docker image as follows:
