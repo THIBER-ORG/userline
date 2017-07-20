@@ -17,6 +17,7 @@ RUN apt-get update && \
 RUN mkdir /$NAME && \
     mkdir -p $DATADIR
 ADD src/ /$NAME
+ADD ../requirements.txt /$NAME
 RUN cd $NAME && \
     pip3 install -U -r requirements.txt
 
