@@ -92,8 +92,6 @@ def main():
 
 	args = parser.parse_args()
 
-	print(args.redis)
-
 	if args.last_event is False and args.logons is False and args.who_was_at is None and args.last_shutdown is False and args.inspect is False:
 		log.critical("You need to specify at least one action argument")
 		return
