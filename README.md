@@ -1,3 +1,5 @@
+[![Dependency Status](https://gemnasium.com/badges/github.com/THIBER-ORG/userline.svg)](https://gemnasium.com/github.com/THIBER-ORG/userline)
+
 # UserLine
 
 This tool automates the process of creating logon relations from MS Windows Security Events by showing a graphical relation among users domains, source and destination logons as well as session duration.
