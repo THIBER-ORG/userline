@@ -1,3 +1,4 @@
+![build_travis](https://travis-ci.org/THIBER-ORG/userline.svg?branch=master)
 [![Dependency Status](https://gemnasium.com/badges/github.com/THIBER-ORG/userline.svg)](https://gemnasium.com/github.com/THIBER-ORG/userline)
 [![Github Issues](http://githubbadges.herokuapp.com/THIBER-ORG/userline/issues.svg?style=flat-square)](https://github.com/THIBER-ORG/userline/issues)
 [![Pending Pull-Requests](http://githubbadges.herokuapp.com/THIBER-ORG/userline/pulls.svg?style=flat-square)](https://github.com/THIBER-ORG/userline/pulls)
