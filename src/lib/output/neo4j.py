@@ -24,8 +24,16 @@ class Neo4J():
 
 	def __init__(self,url,cache_data):
 		proto = "{}/".format('/'.join(url.split('/')[:2]))
-		userpwd = url.split('/')[2].split('@')[0]
-		uri = url.split('@')[1]
+		try:
+			userpwd = url.split('/')[2].split('@')[0]
+		except:
+			userpwd = ":"
+
+		try:
+			uri = url.split('@')[1]
+		except:
+			uri = '/'.join(url.split('/')[2:])
+
 		data = ["{}{}".format(proto,uri),userpwd.split(':')[0], userpwd.split(':')[1]]
 		# TODO: Store this relations in a redis-like cache
 		self.cache = Cache(cache_data)
