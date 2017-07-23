@@ -1,4 +1,3 @@
-[![BlackHat_Arsenal](https://img.shields.io/badge/BlackHat%20Arsenal-2017-red.svg)](https://blackhat.com/us-17/arsenal.html#answering-when-where-who-is-my-insider)
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 ![docker_supported](https://img.shields.io/badge/Docker-Supported-blue.svg)
 [![Python 3](https://img.shields.io/badge/Python-3-brightgreen.svg)](https://github.com/THIBER-ORG/userline/)
@@ -163,7 +162,7 @@ If your image does not already support it, use the included Plaso Dockerfile:
 
 Process the events and store them into elasticsearch
 
-	$ docker run -ti -v /mnt/IR/1329585/:/data plaso/es psort.py -o elastic --server 172.21.0.2 --port 9200 --doc_type plaso --index_name ir-1329585-events-security-windows /data/processed/events/windows/security/sec-evtx.plaso
+	$ docker run -ti --net="host" -v /mnt/IR/1329585/:/data plaso/es psort.py -o elastic --server 172.21.0.2 --port 9200 --doc_type plaso --index_name ir-1329585-events-security-windows /data/processed/events/windows/security/sec-evtx.plaso
 
 
 ## Using the tool
