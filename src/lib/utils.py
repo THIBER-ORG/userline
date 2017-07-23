@@ -126,11 +126,11 @@ def build_event_from_source(item):
 		event['index'] = item['_index']
 
 	item = item.to_dict()
-#	try:
-#		item = item['_source']
-#	except:
-#		print(item)
-#		raise Exception
+	try:
+		aux = item['_source']
+	except:
+		aux = item
+	item = aux
 
 	# get event id from datasource
 	event['eventid'] = item['event_identifier']

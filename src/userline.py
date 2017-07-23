@@ -7,6 +7,7 @@
 
 import sys
 import time
+import json
 import logging
 import argparse
 
@@ -166,31 +167,33 @@ def main():
 		return
 
 	# we need an output format
+	tostdout = False
 	if args.csv_output is None and args.neo4j is None and args.graphviz is None and args.json_output is None and args.timesketch is None:
-		log.critical("This option requires CSV/JSON/Neo4J/Graphviz output")
-		return
+		tostdout = True
+		log.critical("No CSV/JSON/Neo4J/Graphviz output specified, using stdout...")
+		time.sleep(3)
 
-	csv = None
+	csvout = None
 	if args.csv_output is not None:
-		csv = CSV(args.csv_output)
+		csvout = CSV(args.csv_output)
 		if args.mark_if_logged_at is None:
-			csv.disable_mark()
+			csvout.disable_mark()
 
-	json = None
+	jsonout = None
 	if args.json_output is not None:
-		json = JSON(args.json_output,args.duplicate_events)
+		jsonout = JSON(args.json_output,args.duplicate_events)
 
-	neo = None
+	neoout = None
 	if args.neo4j is not None:
-		neo = Neo4J(args.neo4j,args.redis)
+		neoout = Neo4J(args.neo4j,args.redis)
 
-	graph = None
+	graphout = None
 	if args.graphviz is not None:
-		graph = Graphviz(args.graphviz,args.redis)
+		graphout = Graphviz(args.graphviz,args.redis)
 
-	timesketch = None
+	timesketchout = None
 	if args.timesketch is not None:
-		timesketch = Timesketch(args.timesketch)
+		timesketchout = Timesketch(args.timesketch)
 
 	log.info("Building query")
 	# Look for first required events
@@ -206,7 +209,7 @@ def main():
 	log.info("Found {} events to be processed".format(total))
 
 	# timeframe
-	if total > 0 and csv is not None and args.disable_timeframe is False:
+	if total > 0 and csvout is not None and args.disable_timeframe is False:
 		frame = dict(config.EVENT_STRUCT)
 		for k in frame.keys():
 			frame[k] = "-"*10
@@ -215,7 +218,7 @@ def main():
 		frame['logon.timestamp'] = mindate
 		frame['logoff.datetime'] = args.min_date
 		frame['logoff.timestamp'] = mindate
-		csv.add_sequence(frame)
+		csvout.add_sequence(frame)
 
 	count = 0
 	proglen = 0
@@ -271,23 +274,26 @@ def main():
 
 		if discard is False:
 			count += 1
-			if csv is not None:
-				csv.add_sequence(event)
-			if json is not None:
-				json.add_sequence(event)
-			if timesketch is not None:
-				timesketch.add_sequence(event)
-			if neo is not None:
-				neo.add_sequence(event,args.neo4j_full_info,args.unique_logon_rels)
-			if graph is not None:
-				graph.add_sequence(event,args.neo4j_full_info,args.unique_logon_rels)
+			if tostdout is True:
+				log.info(json.dumps(event,sort_keys=True,indent=4))
+			if csvout is not None:
+				csvout.add_sequence(event)
+			if jsonout is not None:
+				jsonout.add_sequence(event)
+			if timesketchout is not None:
+				timesketchout.add_sequence(event)
+			if neoout is not None:
+				neoout.add_sequence(event,args.neo4j_full_info,args.unique_logon_rels)
+			if graphout is not None:
+				graphout.add_sequence(event,args.neo4j_full_info,args.unique_logon_rels)
 			log.debug("Event stored")
 
 		progress += 1
-		proglen = utils.draw_progress_bar(float((progress*100/total)/100.0),begin,proglen)
+		if tostdout is False:
+			proglen = utils.draw_progress_bar(float((progress*100/total)/100.0),begin,proglen)
 
 	# timeframe
-	if total > 0 and csv is not None and args.disable_timeframe is False:
+	if total > 0 and csvout is not None and args.disable_timeframe is False:
 		frame = dict(config.EVENT_STRUCT)
 		for k in frame.keys():
 			frame[k] = "-"*10
@@ -296,22 +302,22 @@ def main():
 		frame['logon.timestamp'] = maxdate
 		frame['logoff.datetime'] = args.max_date
 		frame['logoff.timestamp'] = maxdate
-		csv.add_sequence(frame)
+		csvout.add_sequence(frame)
 
 	total = timedelta(microseconds=int((time.time() - begin)*10**6))
 	print("")
 	log.info("{} Logons processed in {}".format(count,total))
 
-	if neo is not None:
-		neo.finish()
-	if graph is not None:
-		graph.finish()
-	if json is not None:
-		json.finish()
-	if csv is not None:
-		csv.finish()
-	if timesketch is not None:
-		timesketch.finish()
+	if neoout is not None:
+		neoout.finish()
+	if graphout is not None:
+		graphout.finish()
+	if jsonout is not None:
+		jsonout.finish()
+	if csvout is not None:
+		csvout.finish()
+	if timesketchout is not None:
+		timesketchout.finish()
 
 	return
 
