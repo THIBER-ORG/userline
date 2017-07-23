@@ -267,7 +267,7 @@ Getting logon relations between two dates into a JSON file:
 ## Timesketch Output
 Getting logon relations between two dates into a Timesketch compatible CSV file:
 
-	$ ./userline.py -l -i ir-1329585-events-security-windows -t 2016-11-20T11:00:00 -T 2016-11-21T11:00:00 -K output.json
+	$ ./userline.py -l -i ir-1329585-events-security-windows -t 2016-11-20T11:00:00 -T 2016-11-21T11:00:00 -K output.csv
 	
 	 /\ /\  ___  ___ _ __ / /(_)_ __   ___ 
 	/ / \ \/ __|/ _ \ '__/ / | | '_ \ / _ \
