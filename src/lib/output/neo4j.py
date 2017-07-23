@@ -222,6 +222,8 @@ class Neo4J():
 			#  File "/usr/local/lib/python3.5/dist-packages/neo4j/v1/api.py", line 245, in _disconnect
 			#    self._connection.in_use = False
 			#AttributeError: 'NoneType' object has no attribute 'in_use'
+			import time
+			time.sleep(10)
 			self.neo.close()
 		except:
 			pass

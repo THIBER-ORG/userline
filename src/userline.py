@@ -21,6 +21,7 @@ from lib.output.json import JSON
 from lib.output.csv import CSV
 from lib.output.neo4j import Neo4J
 from lib.output.graphviz import Graphviz
+from lib.output.timesketch import Timesketch
 
 
 def main():
@@ -66,6 +67,7 @@ def main():
 	output.add_argument("-j","--json-output",help="JSON Output file",type=argparse.FileType('w'),metavar="PATH")
 	output.add_argument("-n","--neo4j",help="Neo4j bolt with auth (format: bolt://user:pass@host:port)",metavar="BOLT")
 	output.add_argument("-g","--graphviz",help="Graphviz .dot file",type=argparse.FileType('w'),metavar="PATH")
+	output.add_argument("-K","--timesketch",help="Timesketch CSV file",type=argparse.FileType('w'),metavar="PATH")
 
 	csvout = parser.add_argument_group('CSV options')
 	csvout.add_argument("-F","--disable-timeframe",help="Do not create timeframe entries",action='store_true',default=False)
@@ -164,7 +166,7 @@ def main():
 		return
 
 	# we need an output format
-	if args.csv_output is None and args.neo4j is None and args.graphviz is None and args.json_output is None:
+	if args.csv_output is None and args.neo4j is None and args.graphviz is None and args.json_output is None and args.timesketch is None:
 		log.critical("This option requires CSV/JSON/Neo4J/Graphviz output")
 		return
 
@@ -185,6 +187,10 @@ def main():
 	graph = None
 	if args.graphviz is not None:
 		graph = Graphviz(args.graphviz,args.redis)
+
+	timesketch = None
+	if args.timesketch is not None:
+		timesketch = Timesketch(args.timesketch)
 
 	log.info("Building query")
 	# Look for first required events
@@ -269,6 +275,8 @@ def main():
 				csv.add_sequence(event)
 			if json is not None:
 				json.add_sequence(event)
+			if timesketch is not None:
+				timesketch.add_sequence(event)
 			if neo is not None:
 				neo.add_sequence(event,args.neo4j_full_info,args.unique_logon_rels)
 			if graph is not None:
@@ -302,6 +310,8 @@ def main():
 		json.finish()
 	if csv is not None:
 		csv.finish()
+	if timesketch is not None:
+		timesketch.finish()
 
 	return
 
