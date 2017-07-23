@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+#
+
+IFSaux="$IFS"
+IFS="
+"
+
+echo "[i] Available running containers"
+
+count=0
+total=""
+for i in $(docker ps | grep -v ^CONTAINER)
+do
+	count=$((count+1))
+	id=$(echo "$i" | awk '{print $1}')
+	image=$(echo "$i" | awk '{print $2}')
+	name=$(docker inspect -f '{{.Name}}' $id)
+	ip=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $id)
+	echo "    $count) $image$name: $ip"
+done
+
+IFS="$IFSaux"
+
+echo ""
