@@ -13,12 +13,13 @@ This tool automates the process of creating logon relations from MS Windows Secu
 
 ![](https://raw.githubusercontent.com/thiber-org/userline/master/img/graph.png)
 
-It has five output modes:
+It has the following output modes:
 1. Standard output
 1. CSV file
 1. JSON file
 1. Neo4J graph
 1. Graphviz dot file
+1. Timesketch
 
 # Content
 1. [Preparation](#preparation)
@@ -30,6 +31,7 @@ It has five output modes:
 1. [Using the tool](#using-the-tool)
 1. [CSV Output](#csv-output)
 1. [JSON Output](#json-output)
+1. [Timesketch Output](#timesketch-output)
 1. [Neo4J Export](#neo4j-export)
     1. [Querying Neo4J data](#querying-neo4j-data)
     1. [Removing Neo4J data](#removing-neo4j-data)
@@ -77,8 +79,8 @@ Example:
 	
 	usage: userline.py [-h] [-H ESHOSTS] [-S POOL_SIZE] -i INDEX [-r URL]
 	                   (-x | -L | -E | -l | -w DATE) [-c PATH] [-j PATH] [-n BOLT]
-	                   [-g PATH] [-F] [-d] [-f] [-s] [-t MIN_DATE] [-T MAX_DATE]
-	                   [-p PATTERN] [-I] [-k] [-v] [-m DATETIME]
+	                   [-g PATH] [-K PATH] [-F] [-d] [-f] [-s] [-t MIN_DATE]
+	                   [-T MAX_DATE] [-p PATTERN] [-I] [-k] [-v] [-m DATETIME]
 	
 	optional arguments:
 	  -h, --help            show this help message and exit
@@ -111,6 +113,8 @@ Example:
 	                        bolt://user:pass@host:port)
 	  -g PATH, --graphviz PATH
 	                        Graphviz .dot file
+	  -K PATH, --timesketch PATH
+	                        Timesketch CSV file
 	
 	CSV options:
 	  -F, --disable-timeframe
@@ -130,9 +134,9 @@ Example:
 	
 	Optional filtering arguments:
 	  -t MIN_DATE, --min-date MIN_DATE
-	                        Searches since specified date (default: 2016-07-20)
+	                        Searches since specified date (default: 2016-07-23)
 	  -T MAX_DATE, --max-date MAX_DATE
-	                        Searches up to specified date (default: 2017-07-20)
+	                        Searches up to specified date (default: 2017-07-23)
 	  -p PATTERN, --pattern PATTERN
 	                        Includes pattern in search
 	  -I, --include-local   Includes local services logons (default: Excluded)
@@ -260,12 +264,32 @@ Getting logon relations between two dates into a JSON file:
 	[====================] 100.0% Elapsed: 0m 02s ETA: 0m00s
 	INFO - 44 Logons processed in 0:00:02.051880
 
+## Timesketch Output
+Getting logon relations between two dates into a Timesketch compatible CSV file:
+
+	$ ./userline.py -l -i ir-1329585-events-security-windows -t 2016-11-20T11:00:00 -T 2016-11-21T11:00:00 -K output.json
+	
+	 /\ /\  ___  ___ _ __ / /(_)_ __   ___ 
+	/ / \ \/ __|/ _ \ '__/ / | | '_ \ / _ \
+	\ \_/ /\__ \  __/ | / /__| | | | |  __/
+	 \___/ |___/\___|_| \____/_|_| |_|\___|  v0.2.4b
+	
+	Author: Chema Garcia (aka sch3m4)
+	        @sch3m4
+	        https://github.com/thiber-org/userline
+	
+	INFO - Building query
+	INFO - Found 297 events to be processed
+	INFO - Processing events
+	[====================] 100.0% Elapsed: 0m 02s ETA: 0m00s
+	INFO - 44 Logons processed in 0:00:02.051880
+	
 ## Neo4J Export
 
 Getting logon relations into Neo4J graph:
 
-	$ docker run -d -p 7474:7474 -p 7687:7687 -v $HOME/neo4j/data:/data neo4j
-	$ ./userline.py -l -i ir-1329585-events-security-windows -t 2016-11-20T11:00:00 -T 2016-11-21T11:00:00 -n "bolt://user:pass@172.17.0.2:7687/"
+	$ docker run -d -p 7474:7474 -p 7687:7687 -e NEO4J_AUTH=none -v $HOME/neo4j/data:/data neo4j
+	$ ./userline.py -l -i ir-1329585-events-security-windows -t 2016-11-20T11:00:00 -T 2016-11-21T11:00:00 -n "bolt://localhost:7687/"
 	
 	 /\ /\  ___  ___ _ __ / /(_)_ __   ___ 
 	/ / \ \/ __|/ _ \ '__/ / | | '_ \ / _ \
