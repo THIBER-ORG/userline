@@ -37,7 +37,7 @@ class Timesketch():
 				del event[i]
 
 		#message,timestamp,datetime,timestamp_desc
-		event['timestamp'] = event['logon_timestamp']
+		event['timestamp'] = event['logon_timestamp']*1000
 		event['datetime'] = event['logon_datetime']
 		event['timestamp_desc'] = 'logon'
 		event['message'] = 'User {}\{} logons to {}'.format(event['logon_domain'],event['logon_username'],event['logon_computer'])
@@ -53,7 +53,7 @@ class Timesketch():
 		self.csvwriter.writerow(event)
 
 		if event['logoff_timestamp'] > 0:
-			event['timestamp'] = event['logoff_timestamp']
+			event['timestamp'] = event['logoff_timestamp']*1000
 			event['datetime'] = event['logoff_datetime']
 			event['timestamp_desc'] = 'logoff'
 			event['message'] = 'User {}\{} logoffs from {}'.format(event['logon_domain'],event['logon_username'],event['logon_computer'])
