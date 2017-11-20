@@ -1,4 +1,6 @@
 [![Arsenal](https://rawgit.com/toolswatch/badges/master/arsenal/2017.svg)](http://www.toolswatch.org/2017/06/the-black-hat-arsenal-usa-2017-phenomenal-line-up-announced/)
+[![SANS_DFIR_SUMMIT_2K17](https://img.shields.io/badge/SANS%20DFIR%20SUMMIT-2017-blue.svg)](https://www.sans.org/event/dfir-prague-2017/summit-agenda)
+[![BSIDES_LUX_2K17](https://img.shields.io/badge/BSides%20Luxembourg-2017-blue.svg)](http://www.securitybsides.com/w/page/116774919/BSidesLuxembourg)
 
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 ![docker_supported](https://img.shields.io/badge/Docker-Supported-blue.svg)
