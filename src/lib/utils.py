@@ -158,9 +158,10 @@ def build_event_from_source(item):
 	try:
 		val = dateparser.parse(aux.group(1))
 		event['timestamp'] = int(val.timestamp() * 10**3)
+		val = val.isoformat()
 	except:
 		val = '0'
-	event['datetime'] = str(val)
+	event['datetime'] = val
 
 	# get TargetLogonId
 	aux = extract.re_logonid.search(item['xml_string'])

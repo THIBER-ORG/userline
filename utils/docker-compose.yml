@@ -1,21 +1,31 @@
 version: "2"
 services:
   kibana:
-    image: kibana:5.5
+    image: docker.elastic.co/kibana/kibana:6.2.1
     container_name: userline-kibana
     restart: always
     environment:
       - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - xpack.security.enable=false
+      - xpack.monitoring.enable=false
+      - xpack.ml.enable=false
+      - xpack.graph.enable=false
+      - xpack.watcher.enable=false
     links:
       - elasticsearch
 
   elasticsearch:
-    image: elasticsearch:5.5
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.1
     container_name: userline-elasticsearch
     restart: always
-    command: "elasticsearch -Enode.name=userline"
     environment:
       - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - cluster.name=userline
+      - xpack.security.enable=false
+      - xpack.monitoring.enable=false
+      - xpack.ml.enable=false
+      - xpack.graph.enable=false
+      - xpack.watcher.enable=false
     volumes:
       - esdata:/usr/share/elasticsearch/data
     mem_limit: 2g
