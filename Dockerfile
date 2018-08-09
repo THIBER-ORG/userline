@@ -8,6 +8,8 @@ ENV DEBIAN_FRONTEND=noninteractive \
 
 WORKDIR $WORKDIR
 
+RUN sed -i -r 's/(archive|security).ubuntu.com/old-releases.ubuntu.com/g' /etc/apt/sources.list
+
 RUN apt-get update && \
     apt-get -y dist-upgrade && \
     apt-get -y install \
